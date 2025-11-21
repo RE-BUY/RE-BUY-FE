@@ -1,0 +1,279 @@
+.app-shell {
+  width: 390px;
+  height: 744px;
+  background: #f8faf4;
+  border-radius: 32px;
+  border: 1px solid #e1e8da;
+  box-shadow: 0 24px 60px rgba(101, 123, 102, 0.2);
+  padding: 20px 22px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+  font-family: 'Pretendard', 'SUIT', 'Apple SD Gothic Neo', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: #1d3a2c;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #1d3a2c;
+}
+
+.status-icons {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.cellular,
+.wifi,
+.battery {
+  display: inline-block;
+  background: #1d3a2c;
+  border-radius: 3px;
+}
+
+.cellular {
+  width: 16px;
+  height: 10px;
+  clip-path: polygon(0 100%, 25% 40%, 50% 60%, 75% 20%, 100% 0, 100% 100%);
+}
+
+.wifi {
+  width: 14px;
+  height: 10px;
+  clip-path: polygon(0 100%, 50% 20%, 100% 100%);
+}
+
+.battery {
+  width: 20px;
+  height: 10px;
+  position: relative;
+}
+
+.battery::after {
+  content: '';
+  position: absolute;
+  right: -3px;
+  top: 2px;
+  width: 3px;
+  height: 6px;
+  background: #1d3a2c;
+  border-radius: 1px;
+}
+
+.brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo-mark {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.icon-button {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid #a5b7a3;
+  background: #edf3e6;
+  font-size: 1.2rem;
+}
+
+.search-bar {
+  background: #f1f5ec;
+  border: 1px solid #c7d4c3;
+  border-radius: 999px;
+  padding: 0 14px;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #8aa089;
+}
+
+.search-bar input {
+  border: none;
+  background: transparent;
+  flex: 1;
+  font-size: 0.95rem;
+  outline: none;
+  color: #1d3a2c;
+}
+
+.greeting .hello {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.greeting .sub {
+  color: #6c7d6b;
+  font-size: 0.9rem;
+}
+
+.impact-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.impact-card {
+  background: #d8e6d8;
+  border-radius: 18px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #1f4b32;
+}
+
+.impact-card .icon {
+  font-size: 1.5rem;
+}
+
+.impact-card .label {
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  font-size: 0.9rem;
+}
+
+.impact-card .value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.impact-card .value span {
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.partners {
+  background: #e1ecdf;
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.partner-banner {
+  margin-top: 10px;
+  height: 100px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #d7e6d3, #bfd0b6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #476149;
+  font-weight: 500;
+}
+
+.carousel-dots {
+  margin-top: 12px;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.carousel-dots .dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #b7c4b7;
+}
+
+.carousel-dots .dot.active {
+  width: 18px;
+  background: #6f8f73;
+}
+
+.product-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-section .section-title {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.product-card {
+  background: #f4f8f1;
+  border-radius: 16px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product-card h3 {
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.product-card p {
+  font-size: 0.75rem;
+  color: #6c7d6b;
+  margin: 0;
+}
+
+.product-image {
+  width: 100%;
+  height: 90px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #dbe7d6;
+}
+
+.product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bottom-nav {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  align-items: center;
+  background: #f1f6ec;
+  border-radius: 18px;
+  padding: 10px 6px;
+}
+
+.bottom-nav button {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.75rem;
+  color: #849b89;
+}
+
+.bottom-nav button.active {
+  color: #1f4b32;
+  font-weight: 600;
+}
+
+.nav-icon {
+  font-size: 1.1rem;
+}
+
