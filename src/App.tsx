@@ -2,8 +2,9 @@ import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import MainPage from './pages/MainPage'
 import HomePage from './pages/HomePage'
-import Login1Page from './pages/Login1Page'
-import Login2Page from './pages/Login2Page'
+import LoginPage from './pages/LoginPage'
+import Join1Page from './pages/Join1Page'
+import Join2Page from './pages/Join2Page'
 import SearchPage from './pages/SearchPage'
 import DetailPage from './pages/DetailPage'
 import ShoppingBasketPage from './pages/ShoppingBasketPage'
@@ -20,8 +21,9 @@ function App() {
           <Route path="/" element={<Navigate to="/main" replace />} />
           <Route path="/main" element={<MainPage />} />
           <Route path="/home" element={<HomePage />} />
-          <Route path="/login1" element={<Login1Page />} />
-          <Route path="/login2" element={<Login2Page />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/join1" element={<Join1Page />} />
+          <Route path="/join2" element={<Join2Page />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/detail" element={<DetailPage />} />
           <Route path="/shoppingBasket" element={<ShoppingBasketPage />} />
