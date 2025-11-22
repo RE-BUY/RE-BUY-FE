@@ -11,22 +11,12 @@ export default function ListPage() {
   const [searchParams] = useSearchParams();
   const [scrollY, setScrollY] = useState(0);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState(
-    searchParams.get("category") || "all"
-  );
   const [searchQuery, setSearchQuery] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hideThreshold = 100; // (TopNav + SearchBar 높이)
 
-  // URL 파라미터 변경 시 카테고리 업데이트
-  useEffect(() => {
-    const category = searchParams.get("category");
-    if (category) {
-      setSelectedCategory(category);
-    } else {
-      setSelectedCategory("all");
-    }
-  }, [searchParams]);
+  // URL 파라미터에서 카테고리 직접 파생 (useEffect 대신)
+  const selectedCategory = searchParams.get("category") || "all";
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -153,7 +143,6 @@ export default function ListPage() {
           onClose={() => setIsCategoryOpen(false)}
           selectedCategory={selectedCategory}
           onSelectCategory={(category) => {
-            setSelectedCategory(category);
             navigate(`/list${category !== "all" ? `?category=${category}` : ""}`);
           }}
         />
@@ -161,4 +150,3 @@ export default function ListPage() {
     </Layout>
   );
 }
-
