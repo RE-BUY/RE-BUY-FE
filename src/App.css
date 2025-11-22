@@ -277,3 +277,22 @@
   font-size: 1.1rem;
 }
 
+/* 전체 페이지 스크롤바 스타일 */
+::-webkit-scrollbar {
+  width: 4px;   /* 세로 스크롤바 두께 */
+  height: 4px;  /* 가로 스크롤바 두께 */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+

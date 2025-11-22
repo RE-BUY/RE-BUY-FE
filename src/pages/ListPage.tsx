@@ -14,17 +14,23 @@ export default function ListPage() {
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("category") || "all"
   );
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hideThreshold = 100; // (TopNav + SearchBar 높이)
 
-  // URL 파라미터 변경 시 카테고리 업데이트
+  // URL 파라미터 변경 시 카테고리 및 검색어 업데이트
   useEffect(() => {
     const category = searchParams.get("category");
+    const query = searchParams.get("q");
+    
     if (category) {
       setSelectedCategory(category);
     } else {
       setSelectedCategory("all");
+    }
+    
+    if (query !== null) {
+      setSearchQuery(query);
     }
   }, [searchParams]);
 
@@ -85,7 +91,7 @@ export default function ListPage() {
             opacity: searchBarOpacity,
             transform: `translateY(${searchBarTransform}px)`,
             pointerEvents: scrollY > hideThreshold ? "none" : "auto",
-            marginTop: '56px', // TopNav 높이만큼
+            marginTop: '82px', // TopNav 높이만큼
           }}
         >
           <SearchBar 
@@ -107,9 +113,9 @@ export default function ListPage() {
           }}
         >
           <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.length === 0 && searchQuery ? (
+            {filteredProducts.length === 0 ? (
               <div className="col-span-2 text-center py-8 text-gray-500">
-                검색 결과가 없습니다.
+                {searchQuery ? "검색 결과가 없습니다." : "상품이 없습니다."}
               </div>
             ) : (
               filteredProducts.map((product) => (

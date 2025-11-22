@@ -14,7 +14,7 @@ export function BottomNav({ className = "" }: BottomNavProps) {
 
   const navItems = [
     { label: "홈", icon: homeIcon, path: "/home", onClick: () => navigate("/home"), size: "w-7 h-7", iconClassName: "top-[2px]" },
-    { label: "쇼핑", icon: shoppingIcon, path: "/list", onClick: () => navigate("/list"), size: "w-[26px] h-[24px]", iconClassName: "" },
+    { label: "쇼핑", icon: shoppingIcon, path: "/list", onClick: () => navigate("/list"), size: "w-[26px] h-[25px]", iconClassName: "relative -top-[2px]" },
     { label: "플로깅", icon: ploggingIcon, path: "/plogging", onClick: () => navigate("/plogging"), size: "w-7 h-7", iconClassName: "" },
     { label: "마이페이지", icon: myIcon, path: "/my", onClick: () => navigate("/my"), size: "w-[26px] h-[26px]", iconClassName: "" },
   ];
