@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+
 import earthIconImage from '../assets/earth.svg'; // 🚨 [수정] 아이콘 대신 SVG 이미지 import
 
 const Join1Page: React.FC = () => {
@@ -136,5 +137,6 @@ const Join1Page: React.FC = () => {
     </div>
   );
 };
+
 
 export default Join1Page;
