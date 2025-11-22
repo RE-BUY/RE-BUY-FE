@@ -27,7 +27,7 @@ export default function MyPage() {
         navigate('/point');
         break;
       case '플로깅 예약':
-        navigate('/my-plogging'); // MyPlogging 페이지
+        navigate('/myplogging'); // MyPlogging 페이지
         break;
       case '리뷰':
         navigate('/review'); // 리뷰 페이지

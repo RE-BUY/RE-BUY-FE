@@ -56,7 +56,7 @@ const LoginPage: React.FC = () => {
 
     console.log('로그인 시도:', loginData);
     
-    navigate('/main'); 
+    navigate('/home'); 
   };
 
   return (
