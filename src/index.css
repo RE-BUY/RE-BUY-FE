@@ -25,16 +25,16 @@ body,
   }
 }
 
-/* 스크롤바 스타일 (완벽합니다. 유지.) */
+/* 스크롤바 스타일 */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background-color: #f9fff6;
 }
 ::-webkit-scrollbar-thumb {
   background-color: #c1c1c1;
-  border-radius: 4px;
+  border-radius: 2px;
 }
 /* 반응형 모바일 프레임 */
 .mobile-frame {

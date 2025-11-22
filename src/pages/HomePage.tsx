@@ -1,13 +1,12 @@
-import BottomNav from "../components/BottomNav";
+import Layout from "../components/Layout";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col h-screen bg-white text-main overflow-hidden pb-16">
+    <Layout>
       <div className="flex m-6">
         <p className="text-sm font-medium">home</p>
       </div>
-      <BottomNav className="absolute bottom-0 left-0 right-0" />
-    </div>
+    </Layout>
   );
 }
 

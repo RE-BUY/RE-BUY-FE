@@ -1,9 +1,10 @@
-import BottomNav from "../components/BottomNav";
+import Layout from "../components/Layout";
 import earth from "../assets/earth.svg";
 
 export default function MainPage() {
 return (
-<div className="flex flex-col h-screen bg-white text-main overflow-hidden pb-16">
+<Layout>
+<div className="flex flex-col h-full overflow-hidden pb-16">
 {/* HERO */}
 <section className="flex flex-col items-center mt-10 mb-4">
 <p className="text-[40px] font-black tracking-wide">RE:BUY</p>
@@ -36,15 +37,13 @@ className="mx-12 mt-8 py-3 bg-sub2 text-white rounded-xl font-semibold"
 
 
 {/* SIGNUP */}
-<p className="mt-14 text-center text-sm">
+<p className="mt-14 mb-20 text-center text-sm">
 아직 RE:BUY 회원이 아니신가요?
 <button type="button" className="text-main underline ml-1">
 회원가입
 </button>
 </p>
-
-
-<BottomNav className="absolute bottom-0 left-0 right-0" />
 </div>
+</Layout>
 );
 }
