@@ -7,6 +7,7 @@ interface SearchBarProps {
   onMenuClick?: () => void;
   showMenuIcon?: boolean;
   onChange?: (query: string) => void;
+  className?: string;
 }
 
 export default function SearchBar({ 
@@ -14,7 +15,8 @@ export default function SearchBar({
   onSearch,
   onMenuClick,
   showMenuIcon = false,
-  onChange
+  onChange,
+  className = ""
 }: SearchBarProps) {
   const navigate = useNavigate();
   const [searchValue, setSearchValue] = useState("");
@@ -38,7 +40,7 @@ export default function SearchBar({
   };
 
   return (
-    <form onSubmit={handleSearch} className="pl-3 pr-5 py-3 mt-4">
+    <form onSubmit={handleSearch} className={`pl-3 pr-5 py-3 pt-0 ${className}`}>
       <div className="relative flex items-center gap-0.5">
         {/* 삼선 아이콘 (햄버거 메뉴) */}
         {showMenuIcon && (
