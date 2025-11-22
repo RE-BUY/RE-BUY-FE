@@ -81,7 +81,7 @@ export default function PloggingPage() {
             <div className="p-4 mt-6">
             <h3 className="text-lg font-bold mb-4">주의사항</h3>
             <div className="mb-2">
-              <p className="text-[12px]">리바이에 가입하셨던 개인정보 제공에 동의합니다.</p>
+              <p className="text-[12px]">RE:BUY에 가입하셨던 개인정보 제공에 동의합니다.</p>
               <p className="text-[12px]">무단 불참 시 제제가 가해질 수 있음에 동의합니다.</p>
             </div>
             <div className="flex items-center justify-end gap-2">
