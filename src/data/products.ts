@@ -7,7 +7,18 @@ export interface Product {
   price: number;
   category?: string; // 카테고리 (선택적)
 }
+export interface PloggingItem {
+  id: number;
+  place: string;
+  time: string;
+  capacity: number;
+}
 
+export const ploggingItems: PloggingItem[] = [
+  { id: 1, place: '경북대', time: '10:00 AM', capacity: 20 },
+  { id: 2, place: '동성로', time: '1:00 PM', capacity: 15 },
+  { id: 3, place: '수성못', time: '4:00 PM', capacity: 10 },
+];
 // 프로덕트 데이터
 export const products: Product[] = [
   {

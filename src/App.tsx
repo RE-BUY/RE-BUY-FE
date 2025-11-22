@@ -12,6 +12,10 @@ import PloggingPage from './pages/PloggingPage'
 import MyPage from './pages/MyPage'
 import PointPage from './pages/PointPage'
 import ListPage from './pages/ListPage'
+import PurchaseHistoryPage from './pages/PurchaseItem'
+import MyPloggingPage from './pages/MyPlogging'
+import InquiryPage from './pages/InquiryPage'  // 새로 추가
+import ReviewPage from './pages/ReviewPage'      // 새로 추가
 
 function App() {
   return (
@@ -32,6 +36,10 @@ function App() {
             <Route path="/my" element={<MyPage />} />
             <Route path="/point" element={<PointPage />} />
             <Route path="/list" element={<ListPage />} />
+            <Route path="/history" element={<PurchaseHistoryPage/>} />
+            <Route path="/my-plogging" element={<MyPloggingPage/>} />
+            <Route path="/inquiry" element={<InquiryPage />} />  {/* 문의 페이지 */}
+            <Route path="/review" element={<ReviewPage />} />    {/* 리뷰 페이지 */}
           </Routes>
         </div>
       </div>

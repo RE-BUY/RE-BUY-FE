@@ -8,8 +8,7 @@ export default function MyPage() {
   const navigate = useNavigate();
   const [reviewStatus, setReviewStatus] = useState<'bad' | 'good' | null>(null);
 
-  // [수정됨] 아이콘을 이미지 경로로 변경
-  // 실제 이미지 파일 경로에 맞게 수정해주세요.
+  // Quick Menu 정의
   const quickMenus = [
     { name: '구매내역', icon: '/images/products/receipt.png' },
     { name: '리뷰', icon: '/images/products/review.png' },
@@ -18,13 +17,30 @@ export default function MyPage() {
     { name: '포인트', icon: '/images/products/coin.png' },
   ];
 
+  // 메뉴 클릭 시 페이지 이동
   const handleMenuClick = (menuName: string) => {
-    if (menuName === '구매내역') navigate('/history');
-    else if (menuName === '포인트') navigate('/point');
-    // 다른 메뉴 클릭 시 이동할 경로도 여기에 추가하세요.
-    // else if (menuName === '플로깅 예약') navigate('/plogging');
+    switch(menuName) {
+      case '구매내역':
+        navigate('/history');
+        break;
+      case '포인트':
+        navigate('/point');
+        break;
+      case '플로깅 예약':
+        navigate('/my-plogging'); // MyPlogging 페이지
+        break;
+      case '리뷰':
+        navigate('/review'); // 리뷰 페이지
+        break;
+      case '문의':
+        navigate('/inquiry'); // 문의 페이지
+        break;
+      default:
+        break;
+    }
   };
 
+  // 최근 본 상품 예시
   const recentItems = [
     { id: 1, name: '저탄소 인증 우유', img: '/images/products/product1.jpg' },
     { id: 2, name: '리사이클링 지갑', img: '/images/products/p2.png' },
@@ -35,12 +51,14 @@ export default function MyPage() {
     <Layout>
       <div className="flex flex-col h-full bg-white overflow-y-auto pb-20">
         
+        {/* TopNav */}
         <TopNav />
 
+        {/* 유저 정보 */}
         <section className="px-6 pt-4 pb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Y님</h1>
           <p className="text-main font-medium text-sm">
-            물 200L 나무 3그루 절약중!! 
+            물 200L 나무 3그루 절약중!!
           </p>
         </section>
 
@@ -54,7 +72,6 @@ export default function MyPage() {
                 onClick={() => handleMenuClick(menu.name)}
               >
                 <div className="w-14 h-14 bg-sub1 rounded-full flex items-center justify-center group-hover:bg-sub2 transition-colors shadow-sm p-2">
-                  {/* [수정됨] 이모지 대신 이미지 태그 사용 */}
                   <img 
                     src={menu.icon} 
                     alt={menu.name} 
@@ -67,7 +84,7 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* Review Card (초록색 배경 박스) */}
+        {/* Review Card */}
         <section className="px-6 mb-8">
           <h2 className="font-bold text-gray-800 mb-3">도착한 상품은 어땠나요?</h2>
           <div className="bg-sub1 rounded-xl p-4 flex gap-4 items-center">
@@ -97,41 +114,36 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* 최근 본 상품 (초록색 배경 박스 적용) */}
+        {/* 최근 본 상품 */}
         <section className="px-6 mb-8 space-y-2">
-            {/* 타이틀 */}
-            <h2 className="font-bold text-gray-800 mb-3">최근 본 상품</h2>
-            
-            {/* 초록색 배경 박스 (bg-sub1) */}
-            <div className="bg-sub1 rounded-xl p-4">
-                {/* 가로 스크롤 이미지 리스트 */}
-                <div className="flex gap-4 overflow-x-auto scrollbar-hide">
-                    {recentItems.map((item) => (
-                        // 이미지 배경은 흰색으로 유지
-                        <div key={item.id} className="w-24 h-24 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-white/50 flex items-center justify-center shadow-sm">
-                            <img 
-                                src={item.img} 
-                                alt={item.name} 
-                                className="w-full h-full object-contain p-1 mix-blend-multiply" 
-                            />
-                        </div>
-                    ))}
+          <h2 className="font-bold text-gray-800 mb-3">최근 본 상품</h2>
+          <div className="bg-sub1 rounded-xl p-4">
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide">
+              {recentItems.map((item) => (
+                <div key={item.id} className="w-24 h-24 flex-shrink-0 bg-white rounded-lg overflow-hidden border border-white/50 flex items-center justify-center shadow-sm">
+                  <img 
+                    src={item.img} 
+                    alt={item.name} 
+                    className="w-full h-full object-contain p-1 mix-blend-multiply" 
+                  />
                 </div>
+              ))}
             </div>
+          </div>
         </section>
 
-        {/* 문의사항 (박스 밖으로 분리) */}
+        {/* 문의사항 */}
         <section className="px-6">
-             <div className="flex justify-between items-center py-4 border-b border-t border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors px-1">
-                <span className="font-bold text-gray-800">문의사항</span>
-                <span className="text-gray-400 text-lg">&#8250;</span>
-            </div>
+          <div className="flex justify-between items-center py-4 border-b border-t border-gray-50 cursor-pointer hover:bg-gray-50 transition-colors px-1">
+            <span className="font-bold text-gray-800">문의사항</span>
+            <span className="text-gray-400 text-lg">&#8250;</span>
+          </div>
         </section>
 
         {/* Footer Links */}
         <div className="mt-10 mb-28 px-6 flex gap-6 text-sm text-gray-400">
-            <button className="underline hover:text-gray-600">로그아웃</button>
-            <button className="underline hover:text-gray-600">회원탈퇴</button>
+          <button className="underline hover:text-gray-600">로그아웃</button>
+          <button className="underline hover:text-gray-600">회원탈퇴</button>
         </div>
 
       </div>
