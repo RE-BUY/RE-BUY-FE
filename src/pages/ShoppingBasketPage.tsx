@@ -2,9 +2,10 @@ import React, { useState } from 'react';
 import Layout from "../components/Layout";
 import { useNavigate } from 'react-router-dom';
 
-export default function ShoppingBasketPage() {
+export default function ShoppingBasket() {
   const navigate = useNavigate();
 
+  // 1. 장바구니 데이터
   const [cartItems, setCartItems] = useState([
     { 
       id: 1, 
@@ -22,13 +23,12 @@ export default function ShoppingBasketPage() {
     },
   ]);
 
-  // 수량 변경 함수 
+  // 2. 수량 변경 함수
   const handleQuantityChange = (id: number, change: number) => {
     setCartItems(prevItems => 
       prevItems.map(item => {
         if (item.id === id) {
           const newQty = item.qty + change;
-          // 수량은 1보다 작아질 수 없음
           return newQty > 0 ? { ...item, qty: newQty } : item;
         }
         return item;
@@ -36,7 +36,7 @@ export default function ShoppingBasketPage() {
     );
   };
 
-  // 상품 삭제 함수 
+  // 3. 삭제 함수
   const handleRemoveItem = (id: number) => {
     setCartItems(prevItems => prevItems.filter(item => item.id !== id));
   };
@@ -48,7 +48,7 @@ export default function ShoppingBasketPage() {
     <Layout>
       <div className="flex flex-col h-full bg-white relative">
         
-        {/* Header */}
+        {/* 헤더 */}
         <header className="flex items-center px-5 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
           <button onClick={() => navigate(-1)} className="mr-4 text-2xl text-gray-600 leading-none pb-1">
             &#8249;
@@ -58,7 +58,7 @@ export default function ShoppingBasketPage() {
           </h1>
         </header>
 
-        {/* Contents */}
+        {/* 컨텐츠 */}
         <div className="flex-1 overflow-y-auto pb-32">
           {cartItems.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-64 text-gray-400">
@@ -77,12 +77,11 @@ export default function ShoppingBasketPage() {
                     />
                   </div>
 
-                  {/* 정보 및 컨트롤 */}
+                  {/* 정보 및 버튼 */}
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex justify-between items-start">
                       <h3 className="text-base font-medium text-gray-800">{item.name}</h3>
                       
-                      {/* [수정됨] 삭제 버튼 클릭 이벤트 연결 */}
                       <button 
                         onClick={() => handleRemoveItem(item.id)}
                         className="text-gray-400 hover:text-red-500 transition-colors text-lg"
@@ -93,7 +92,6 @@ export default function ShoppingBasketPage() {
                     
                     <div className="flex justify-between items-end mt-2">
                       <div className="flex items-center bg-gray-50 rounded-md border border-gray-200">
-                        {/* [수정됨] 마이너스 버튼 클릭 이벤트 연결 */}
                         <button 
                           onClick={() => handleQuantityChange(item.id, -1)}
                           className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-200 rounded-l active:bg-gray-300 transition-colors text-lg"
@@ -101,11 +99,8 @@ export default function ShoppingBasketPage() {
                           -
                         </button>
                         
-                        <span className="px-2 text-sm font-semibold text-gray-700 select-none">
-                          {item.qty}
-                        </span>
+                        <span className="px-2 text-sm font-semibold text-gray-700 select-none">{item.qty}</span>
                         
-                        {/* [수정됨] 플러스 버튼 클릭 이벤트 연결 */}
                         <button 
                           onClick={() => handleQuantityChange(item.id, 1)}
                           className="w-8 h-8 flex items-center justify-center text-gray-500 hover:bg-gray-200 rounded-r active:bg-gray-300 transition-colors text-lg"
@@ -123,7 +118,7 @@ export default function ShoppingBasketPage() {
             </ul>
           )}
 
-          {/* 금액 요약 */}
+          {/* 가격 정보 */}
           {cartItems.length > 0 && (
             <div className="px-5 mt-4 mb-10">
               <div className="bg-sub1/30 rounded-xl p-5 space-y-3">
@@ -144,7 +139,7 @@ export default function ShoppingBasketPage() {
           )}
         </div>
 
-        {/* Bottom Button */}
+        {/* 하단 구매 버튼 */}
         <div className="absolute bottom-0 w-full p-5 bg-white border-t border-gray-100">
           <button
             className="w-full py-4 bg-main text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#3d5a44] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
