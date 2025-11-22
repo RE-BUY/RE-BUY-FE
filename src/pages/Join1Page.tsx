@@ -137,4 +137,5 @@ const Join1Page: React.FC = () => {
   );
 };
 
+
 export default Join1Page;
