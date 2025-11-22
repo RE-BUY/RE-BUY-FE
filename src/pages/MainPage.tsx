@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import earth from "../assets/earth.svg";
 
 export default function MainPage() {
+const navigate = useNavigate();
+
 return (
 <Layout>
 <div className="flex flex-col h-full overflow-hidden pb-16">
@@ -30,6 +33,7 @@ RE:BUY는 친환경 제품을 <br />
 {/* LOGIN BUTTON */}
 <button
 type="button"
+onClick={() => navigate("/login")}
 className="mx-12 mt-8 py-3 bg-sub2 text-white rounded-xl font-semibold"
 >
 로그인 후 이용하기
@@ -39,7 +43,11 @@ className="mx-12 mt-8 py-3 bg-sub2 text-white rounded-xl font-semibold"
 {/* SIGNUP */}
 <p className="mt-14 mb-20 text-center text-sm">
 아직 RE:BUY 회원이 아니신가요?
-<button type="button" className="text-main underline ml-1">
+<button 
+type="button" 
+onClick={() => navigate("/join1")}
+className="text-main underline ml-1"
+>
 회원가입
 </button>
 </p>

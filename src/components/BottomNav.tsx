@@ -46,6 +46,5 @@ export function BottomNav({ className = "" }: BottomNavProps) {
     </nav>
   );
 }
-    
-    
-    export default BottomNav;
+
+export default BottomNav;
