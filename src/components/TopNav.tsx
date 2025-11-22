@@ -1,4 +1,6 @@
 import { useNavigate } from 'react-router-dom';
+import basketIcon from '../assets/basket.svg';
+import earthIcon from '../assets/earth.svg';
 
 export default function TopNav() {
   const navigate = useNavigate();
@@ -10,9 +12,7 @@ export default function TopNav() {
         className="flex items-center gap-2 cursor-pointer"
         onClick={() => navigate('/home')}
       >
-        <div className="w-6 h-6 bg-main rounded-full flex items-center justify-center">
-          <span className="text-white text-xs">🌍</span>
-        </div>
+        <img src={earthIcon} alt="RE:BUY" className="w-6 h-6" />
         <span className="text-lg font-bold text-main">RE:BUY</span>
       </div>
 
@@ -22,19 +22,7 @@ export default function TopNav() {
         className="p-2"
         aria-label="장바구니"
       >
-        <svg
-          className="w-6 h-6 text-main"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-          />
-        </svg>
+        <img src={basketIcon} alt="장바구니" className="w-6 h-6" />
       </button>
     </header>
   );

@@ -6,6 +6,7 @@ interface CategorySidebarProps {
 }
 
 const categories = [
+  { id: "all", name: "전체" },
   { id: "food", name: "식품" },
   { id: "drink", name: "음료" },
   { id: "fashion", name: "패션" },
@@ -17,7 +18,7 @@ const categories = [
 export default function CategorySidebar({
   isOpen,
   onClose,
-  selectedCategory = "fashion",
+  selectedCategory = "all",
   onSelectCategory,
 }: CategorySidebarProps) {
   if (!isOpen) return null;

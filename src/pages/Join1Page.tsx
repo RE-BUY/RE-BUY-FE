@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import earthIconImage from '../assets/earth.svg'; // 🚨 [수정] 아이콘 대신 SVG 이미지 import
 
-interface Join1PageProps {
-  onGoLogin: () => void;
-  onGoJoin2: () => void;
-}
-
-const Join1Page: React.FC<Join1PageProps> = ({ onGoLogin, onGoJoin2 }) => {
+const Join1Page: React.FC = () => {
+  const navigate = useNavigate();
   // 0: 소개, 1: 폼 입력
   const [signupStep, setSignupStep] = useState<number>(0);
 
@@ -16,19 +13,13 @@ const Join1Page: React.FC<Join1PageProps> = ({ onGoLogin, onGoJoin2 }) => {
   };
 
   const handleToLogin = () => {
-    if (onGoLogin) {
-      onGoLogin();
-    } else {
-      console.error('onGoLogin Prop 누락');
-    }
+    navigate('/login');
   };
 
   // 폼 제출 시 Join2Page(완료 화면)로 이동
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (onGoJoin2) {
-      onGoJoin2();
-    }
+    navigate('/join2');
   };
 
   const renderContent = () => {

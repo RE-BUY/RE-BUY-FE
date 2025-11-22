@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Layout from "../components/Layout";
 import TopNav from "../components/TopNav";
 import SearchBar from "../components/SearchBar";
@@ -8,12 +8,25 @@ import { products } from "../data/products";
 
 export default function ListPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [scrollY, setScrollY] = useState(0);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState("fashion");
+  const [selectedCategory, setSelectedCategory] = useState(
+    searchParams.get("category") || "all"
+  );
   const [searchQuery, setSearchQuery] = useState("");
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hideThreshold = 100; // (TopNav + SearchBar 높이)
+
+  // URL 파라미터 변경 시 카테고리 업데이트
+  useEffect(() => {
+    const category = searchParams.get("category");
+    if (category) {
+      setSelectedCategory(category);
+    } else {
+      setSelectedCategory("all");
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -38,8 +51,8 @@ export default function ListPage() {
 
   // 검색어 및 카테고리로 상품 필터링
   const filteredProducts = products.filter((product) => {
-    // 카테고리 필터링
-    if (selectedCategory && product.category !== selectedCategory) {
+    // 카테고리 필터링 (전체가 아닐 때만)
+    if (selectedCategory && selectedCategory !== "all" && product.category !== selectedCategory) {
       return false;
     }
     
@@ -139,7 +152,10 @@ export default function ListPage() {
           isOpen={isCategoryOpen}
           onClose={() => setIsCategoryOpen(false)}
           selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
+          onSelectCategory={(category) => {
+            setSelectedCategory(category);
+            navigate(`/list${category !== "all" ? `?category=${category}` : ""}`);
+          }}
         />
       </div>
     </Layout>

@@ -1,7 +1,17 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-
+import MainPage from './pages/MainPage'
 import HomePage from './pages/HomePage'
+import LoginPage from './pages/LoginPage'
+import Join1Page from './pages/Join1Page'
+import Join2Page from './pages/Join2Page'
+import SearchPage from './pages/SearchPage'
+import DetailPage from './pages/DetailPage'
+import ShoppingBasketPage from './pages/ShoppingBasketPage'
+import PloggingPage from './pages/PloggingPage'
+import MyPage from './pages/MyPage'
+import PointPage from './pages/PointPage'
+import ListPage from './pages/ListPage'
 
 function App() {
   return (
