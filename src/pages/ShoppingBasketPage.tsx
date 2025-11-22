@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+
+>>>>>>> 7f06448a312c46327a4917b167a7d928e94f9e80
 import React, { useState } from 'react';
 import Layout from "../components/Layout";
 import { useNavigate } from 'react-router-dom';

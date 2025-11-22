@@ -1,7 +1,8 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import MainPage from './pages/MainPage'
+
 import HomePage from './pages/HomePage'
+<<<<<<< HEAD
 import LoginPage from './pages/LoginPage'
 import Join1Page from './pages/Join1Page'
 import Join2Page from './pages/Join2Page'
@@ -13,6 +14,8 @@ import MyPage from './pages/MyPage'
 import PointPage from './pages/PointPage'
 import ListPage from './pages/ListPage'
 import PurchaseHistoryPage from './pages/PurchaseHistoryPage';
+=======
+>>>>>>> 7f06448a312c46327a4917b167a7d928e94f9e80
 
 function App() {
   return (
