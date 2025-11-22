@@ -13,6 +13,9 @@ import MyPage from './pages/MyPage'
 import PointPage from './pages/PointPage'
 import ListPage from './pages/ListPage'
 
+import PurchaseHistoryPage from './pages/PurchaseHistoryPage';
+
+
 function App() {
   return (
     <BrowserRouter>
@@ -31,6 +34,7 @@ function App() {
             <Route path="/plogging" element={<PloggingPage />} />
             <Route path="/my" element={<MyPage />} />
             <Route path="/point" element={<PointPage />} />
+            <Route path="/history" element={<PurchaseHistoryPage />} />
             <Route path="/list" element={<ListPage />} />
           </Routes>
         </div>

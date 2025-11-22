@@ -19,12 +19,11 @@ export default function MyPage() {
         {/* [Header] */}
         <header className="flex justify-between items-center px-6 py-4">
           <span className="text-xl font-black tracking-wide text-main">RE:BUY</span>
-          <button onClick={() => navigate('/cart')} className="p-1">
+          <button onClick={() => navigate('/shoppingBasket')} className="p-1">
              <span className="text-2xl">🛒</span>
           </button>
         </header>
 
-        {/* [User Info Area] */}
         <section className="px-6 pt-4 pb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">Y님</h1>
           <p className="text-main font-medium text-sm">
@@ -32,7 +31,6 @@ export default function MyPage() {
           </p>
         </section>
 
-        {/* [Quick Menu] 이모지 적용 */}
         <section className="px-4 mb-8">
           <div className="flex justify-between bg-white py-2 px-2">
             {quickMenus.map((menu) => (
