@@ -1,41 +1,65 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import Layout from '../components/Layout';
 import TopNav from '../components/TopNav';
 
+interface Product {
+  id: number;
+  name: string;
+  img: string;
+}
+
 interface Review {
   id: number;
+  product: Product;
   title: string;
   content: string;
   date: string;
   status: '공개' | '비공개';
+  rating: number; // 별점 추가
 }
 
-export default function ReviewPage() {
-  const [reviews, setReviews] = useState<Review[]>([
-    { id: 1, title: '리사이클링 지갑 만족', content: '제품 퀄리티가 생각보다 좋고 배송도 빠르게 왔어요.', date: '2025-11-21', status: '공개' },
-    { id: 2, title: '저탄소 우유 후기', content: '맛이 일반 우유와 비슷하면서 친환경 제품이라 만족도가 높습니다.', date: '2025-11-19', status: '비공개' },
-  ]);
+const products: Product[] = [
+  { id: 1, name: '리사이클링 지갑', img: '/images/products/p2.png' },
+  { id: 2, name: '저탄소 우유', img: '/images/products/product1.jpg' },
+  { id: 3, name: '에코백', img: '/images/products/product3.jpg' },
+];
 
+export default function ReviewPage() {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newStatus, setNewStatus] = useState<'공개' | '비공개'>('공개');
+  const [newRating, setNewRating] = useState(5); // 기본 5점
 
   const handleAddReview = () => {
+    if (!selectedProductId) {
+      alert('리뷰할 상품을 선택해주세요.');
+      return;
+    }
     if (!newTitle || !newContent) {
       alert('제목과 내용을 입력해주세요.');
       return;
     }
+
+    const product = products.find(p => p.id === selectedProductId)!;
+
     const newReview: Review = {
       id: reviews.length + 1,
+      product,
       title: newTitle,
       content: newContent,
       date: new Date().toISOString().split('T')[0],
       status: newStatus,
+      rating: newRating,
     };
-    setReviews([newReview, ...reviews]); // 최신 리뷰 위쪽에 추가
+
+    setReviews([newReview, ...reviews]);
     setNewTitle('');
     setNewContent('');
     setNewStatus('공개');
+    setSelectedProductId(null);
+    setNewRating(5);
   };
 
   return (
@@ -46,8 +70,34 @@ export default function ReviewPage() {
         <div className="flex-1 overflow-y-auto px-5 pt-4 pb-20 space-y-6">
 
           {/* 리뷰 작성 섹션 */}
-          <section className="mb-6 border rounded-xl p-4 shadow-sm">
+          <section className="mb-6 border rounded-xl p-4 shadow-sm space-y-3">
             <h2 className="font-bold text-gray-800 mb-2">리뷰 작성</h2>
+
+            {/* 상품 선택 */}
+            <select
+              className="w-full mb-2 p-2 border rounded"
+              value={selectedProductId ?? ''}
+              onChange={(e) => setSelectedProductId(Number(e.target.value))}
+            >
+              <option value="" disabled>리뷰할 상품을 선택하세요</option>
+              {products.map(p => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+
+            {/* 별점 선택 */}
+            <div className="flex items-center gap-1 mb-2">
+              {[1,2,3,4,5].map((star) => (
+                <span
+                  key={star}
+                  onClick={() => setNewRating(star)}
+                  className={`cursor-pointer text-2xl ${star <= newRating ? 'text-yellow-400' : 'text-gray-300'}`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+
             <input 
               type="text"
               placeholder="제목을 입력하세요"
@@ -62,6 +112,7 @@ export default function ReviewPage() {
               value={newContent}
               onChange={(e) => setNewContent(e.target.value)}
             />
+
             <div className="flex items-center gap-4 mb-2">
               <label className="flex items-center gap-1">
                 <input type="radio" checked={newStatus === '공개'} onChange={() => setNewStatus('공개')} />
@@ -72,6 +123,7 @@ export default function ReviewPage() {
                 비공개
               </label>
             </div>
+
             <button 
               onClick={handleAddReview}
               className="w-full py-2 bg-main text-white font-bold rounded-xl hover:bg-[#3d5a44] transition-colors"
@@ -88,12 +140,21 @@ export default function ReviewPage() {
           ) : (
             <ul className="space-y-4">
               {reviews.map((item) => (
-                <li key={item.id} className="border rounded-xl p-4 shadow-sm flex flex-col justify-between">
-                  <div className="mb-2">
-                    <p className="font-bold text-gray-800">{item.title}</p>
-                    <p className="text-xs text-gray-500">{item.date}</p>
+                <li key={item.id} className="border rounded-xl p-4 shadow-sm flex flex-col justify-between space-y-2">
+                  <div className="flex items-center gap-3">
+                    <img src={item.product.img} alt={item.product.name} className="w-16 h-16 object-contain rounded-lg border" />
+                    <p className="font-bold text-gray-800">{item.product.name}</p>
                   </div>
-                  <p className="text-sm text-gray-600 mb-2 line-clamp-2">{item.content}</p>
+
+                  {/* 별점 표시 */}
+                  <div className="flex text-yellow-400 gap-1">
+                    {Array.from({length: item.rating}).map((_, idx) => <span key={idx}>★</span>)}
+                    {Array.from({length: 5 - item.rating}).map((_, idx) => <span key={idx} className="text-gray-300">★</span>)}
+                  </div>
+
+                  <p className="font-bold text-gray-800">{item.title}</p>
+                  <p className="text-xs text-gray-500">{item.date}</p>
+                  <p className="text-sm text-gray-600 line-clamp-2">{item.content}</p>
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full self-start
                     ${item.status === '공개' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}`}>
                     {item.status}

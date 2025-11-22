@@ -1,9 +1,11 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import earthIconImage from '../assets/earth.svg';
 
 const Join2Page: React.FC = () => {
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
 
   return (
     <div className="flex flex-col w-full h-full bg-white text-main">
@@ -33,7 +35,10 @@ const Join2Page: React.FC = () => {
 
         {/* 홈으로 가기 버튼 */}
         <button
-          onClick={() => navigate('/main')}
+          onClick={() => {
+            setIsLoggedIn(true);
+            navigate('/home');
+          }}
           className="w-full max-w-xs py-3 bg-[#8FAB95] text-white rounded-xl font-semibold text-base"
         >
           홈으로 가기
