@@ -1,8 +1,7 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-
+import MainPage from './pages/MainPage'
 import HomePage from './pages/HomePage'
-<<<<<<< HEAD
 import LoginPage from './pages/LoginPage'
 import Join1Page from './pages/Join1Page'
 import Join2Page from './pages/Join2Page'
@@ -13,9 +12,6 @@ import PloggingPage from './pages/PloggingPage'
 import MyPage from './pages/MyPage'
 import PointPage from './pages/PointPage'
 import ListPage from './pages/ListPage'
-import PurchaseHistoryPage from './pages/PurchaseHistoryPage';
-=======
->>>>>>> 7f06448a312c46327a4917b167a7d928e94f9e80
 
 function App() {
   return (
@@ -35,7 +31,6 @@ function App() {
             <Route path="/plogging" element={<PloggingPage />} />
             <Route path="/my" element={<MyPage />} />
             <Route path="/point" element={<PointPage />} />
-            <Route path="/history" element={<PurchaseHistoryPage />} />
             <Route path="/list" element={<ListPage />} />
           </Routes>
         </div>

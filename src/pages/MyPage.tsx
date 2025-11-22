@@ -11,7 +11,7 @@ export default function MyPage() {
     { name: '플로깅 예약', icon: '📅' },
     { name: '포인트', icon: '🪙' },
   ];
-
+ 
   return (
     <Layout>
       <div className="flex flex-col h-full bg-white overflow-y-auto pb-20">
