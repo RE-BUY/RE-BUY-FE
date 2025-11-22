@@ -5,6 +5,7 @@ export default {
     extend: {
       fontFamily: {
         pretendard: ['Pretendard', 'SUIT', 'Apple SD Gothic Neo', '-apple-system', 'sans-serif'],
+        'baloo': ['"Baloo Bhaijaan 2"', 'cursive', 'sans-serif'],
       },
       colors: {
         main: '#4F7457',
