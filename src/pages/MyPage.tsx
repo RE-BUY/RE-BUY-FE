@@ -8,17 +8,21 @@ export default function MyPage() {
   const navigate = useNavigate();
   const [reviewStatus, setReviewStatus] = useState<'bad' | 'good' | null>(null);
 
+  // [수정됨] 아이콘을 이미지 경로로 변경
+  // 실제 이미지 파일 경로에 맞게 수정해주세요.
   const quickMenus = [
-    { name: '구매내역', icon: '🧾' },
-    { name: '리뷰', icon: '✍️' },
-    { name: '문의', icon: '💬' },
-    { name: '플로깅 예약', icon: '📅' },
-    { name: '포인트', icon: '🪙' },
+    { name: '구매내역', icon: '/images/products/receipt.png' },
+    { name: '리뷰', icon: '/images/products/review.png' },
+    { name: '문의', icon: '/images/products/chat.png' },
+    { name: '플로깅 예약', icon: '/images/products/calendar.png' },
+    { name: '포인트', icon: '/images/products/coin.png' },
   ];
 
   const handleMenuClick = (menuName: string) => {
     if (menuName === '구매내역') navigate('/history');
     else if (menuName === '포인트') navigate('/point');
+    // 다른 메뉴 클릭 시 이동할 경로도 여기에 추가하세요.
+    // else if (menuName === '플로깅 예약') navigate('/plogging');
   };
 
   const recentItems = [
@@ -49,8 +53,13 @@ export default function MyPage() {
                 className="flex flex-col items-center gap-2 p-1 group w-16"
                 onClick={() => handleMenuClick(menu.name)}
               >
-                <div className="w-10 h-10 bg-sub1 rounded-full flex items-center justify-center text-lg group-hover:bg-sub2 transition-colors shadow-sm">
-                  {menu.icon}
+                <div className="w-14 h-14 bg-sub1 rounded-full flex items-center justify-center group-hover:bg-sub2 transition-colors shadow-sm p-2">
+                  {/* [수정됨] 이모지 대신 이미지 태그 사용 */}
+                  <img 
+                    src={menu.icon} 
+                    alt={menu.name} 
+                    className="w-full h-full object-contain" 
+                  />
                 </div>
                 <span className="text-xs text-gray-600 whitespace-nowrap">{menu.name}</span>
               </button>
@@ -88,7 +97,7 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* [수정됨] 최근 본 상품 (초록색 배경 박스 적용) */}
+        {/* 최근 본 상품 (초록색 배경 박스 적용) */}
         <section className="px-6 mb-8 space-y-2">
             {/* 타이틀 */}
             <h2 className="font-bold text-gray-800 mb-3">최근 본 상품</h2>

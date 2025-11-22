@@ -43,28 +43,7 @@ export default function PointPage() {
 
         </div>
 
-        <nav className="fixed bottom-0 w-full max-w-md bg-white border-t border-gray-100 h-16 flex justify-around items-center z-50 text-gray-400">
-            <button className="flex flex-col items-center justify-center w-full h-full hover:text-[#4F7457] transition-colors" onClick={() => navigate('/')}>
-              <span className="text-2xl mb-1">🏠</span>
-              <span className="text-[10px]">홈</span>
-            </button>
-            
-            <button className="flex flex-col items-center justify-center w-full h-full hover:text-[#4F7457] transition-colors">
-              <span className="text-2xl mb-1">☰</span>
-              <span className="text-[10px]">카테고리</span>
-            </button>
-            
-            <button className="flex flex-col items-center justify-center w-full h-full hover:text-[#4F7457] transition-colors">
-              <span className="text-2xl mb-1">🌏</span>
-              <span className="text-[10px]">플로깅</span>
-            </button>
-            
-            <button className="flex flex-col items-center justify-center w-full h-full text-[#4F7457] transition-colors" onClick={() => navigate('/mypage')}>
-              <span className="text-2xl mb-1">👤</span>
-              <span className="text-[10px]">마이페이지</span>
-            </button>
-        </nav>
-
+       
       </div>
     </Layout>
   );
