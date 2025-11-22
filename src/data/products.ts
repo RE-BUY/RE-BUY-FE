@@ -13,6 +13,45 @@ export interface PloggingItem {
   time: string;
   capacity: number;
 }
+export interface Product2 {
+  id: number;
+  brand: string;
+  name: string;
+  qty: number;
+  price: number;
+  waterL: number; // 절약한 물 L
+  treeT: number;  // 절약한 나무 T
+}
+
+export const purchaseHistory: Product2[] = [
+  {
+    id: 1,
+    brand: '프라이탁',
+    name: '리사이클링 지갑',
+    qty: 1,
+    price: 34500,
+    waterL: 10,
+    treeT: 1,
+  },
+  {
+    id: 2,
+    brand: '서울우유',
+    name: '저탄소 우유',
+    qty: 1,
+    price: 5000,
+    waterL: 5,
+    treeT: 0,
+  },
+  {
+    id: 3,
+    brand: '친환경',
+    name: '에코백',
+    qty: 3,
+    price: 15000,
+    waterL: 20,
+    treeT: 2,
+  },
+];
 
 export const ploggingItems: PloggingItem[] = [
   { id: 1, place: '경북대', time: '10:00 AM', capacity: 20 },
