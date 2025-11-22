@@ -13,7 +13,6 @@ import MyPage from './pages/MyPage'
 import PointPage from './pages/PointPage'
 import ListPage from './pages/ListPage'
 
-
 function App() {
   return (
     <BrowserRouter>

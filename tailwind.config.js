@@ -8,6 +8,7 @@ export default {
       },
       colors: {
         main: '#4F7457',
+        main2: '#8FAB95',
         sub1: '#D5E4D8',
         sub2: '#8FAB95',
         gray1: '#C2C2C2',
