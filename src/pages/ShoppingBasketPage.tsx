@@ -27,6 +27,21 @@ export default function ShoppingBasket() {
     const totalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
     const shippingFee = 3000;
 
+    const handlePurchase = () => {
+        if (cartItems.length === 0) return;
+        
+        // 구매 완료 메시지 먼저 표시
+        alert('구매가 완료되었습니다!');
+        
+        // 장바구니 비우기
+        setCartItems([]);
+        
+        // 주문내역 페이지로 이동
+        setTimeout(() => {
+            navigate('/history');
+        }, 100);
+    };
+
     return (
         <Layout>
             <div className="flex flex-col h-full bg-white relative">
@@ -113,6 +128,17 @@ export default function ShoppingBasket() {
                             </button>
                         </div>
                     )}
+                </div>
+
+                {/* 하단 구매 버튼 */}
+                <div className="absolute bottom-0 w-full p-5 bg-white border-t border-gray-100">
+                    <button
+                        onClick={handlePurchase}
+                        className="w-full py-3 bg-main text-white text-lg font-bold rounded-xl shadow-lg hover:bg-[#3d5a44] transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed flex justify-center items-center"
+                        disabled={cartItems.length === 0}
+                    >
+                        구매하기
+                    </button>
                 </div>
             </div>
         </Layout>

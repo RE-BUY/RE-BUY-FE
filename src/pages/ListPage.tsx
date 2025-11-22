@@ -150,7 +150,7 @@ export default function ListPage() {
                   {product.model && (
                     <p className="text-xs text-gray-500 mb-1">{product.model}</p>
                   )}
-                  <p className="text-sm font-bold text-orange-600">
+                  <p className="text-sm font-bold text-red1">
                     {product.price.toLocaleString()}원
                   </p>
                 </div>
