@@ -12,6 +12,7 @@ export default {
         sub1: '#D5E4D8',
         sub2: '#8FAB95',
         gray1: '#C2C2C2',
+        red1: '#C53737',
       },
     },
   },

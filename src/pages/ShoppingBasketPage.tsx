@@ -1,27 +1,10 @@
-import React, { useState } from 'react';
 import Layout from "../components/Layout";
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../contexts/CartContext';
 
 export default function ShoppingBasket() {
     const navigate = useNavigate();
-
-    // 1. 장바구니 데이터
-    const [cartItems, setCartItems] = useState([
-        { 
-            id: 1, 
-            name: '재활용 지갑', 
-            price: 12800, 
-            qty: 2, 
-            img: '/images/products/p1.png' 
-        },
-        { 
-            id: 2, 
-            name: '리사이클링 지갑', 
-            price: 45000, 
-            qty: 1, 
-            img: '/images/products/p2.png' 
-        },
-    ]);
+    const { cartItems, setCartItems } = useCart();
 
     // 2. 수량 변경 함수
     const handleQuantityChange = (id: number, change: number) => {
