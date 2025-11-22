@@ -10,7 +10,6 @@ const categories = [
   { id: "food", name: "식품" },
   { id: "drink", name: "음료" },
   { id: "fashion", name: "패션" },
-  { id: "accessories", name: "소품" },
   { id: "stationery", name: "문구류" },
   { id: "household", name: "생활용품" },
 ];
