@@ -82,18 +82,22 @@ export default function HomePage() {
           </div>
 
           {/* 추천 상품 */}
-          <h2 className="mt-8 font-semibold text-lg">추천 상품</h2>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white">
-              <img src="/images/products/product1.jpg" className="max-w-full max-h-full object-contain" alt="저탄소 우유" />
-            </div>
-            <div className="w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white">
-              <img src="/images/products/p2.png" className="max-w-full max-h-full object-contain" alt="업사이클링 지갑" />
-            </div>
-            <div className="w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white">
-              <img src="/images/products/product3.jpg" className="max-w-full max-h-full object-contain" alt="에코백" />
-            </div>
-          </div>
+        <div className="mt-8">
+           <p className="font-semibold mb-3 text-[#4F7457] text-lg">추천 상품</p>
+              
+  {/* 가로 스크롤 카드 */}
+           <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x snap-mandatory">
+              <div className="snap-start flex-shrink-0 w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white">
+                <img src="/images/products/product1.jpg" className="max-w-full max-h-full object-contain" alt="저탄소 우유" />
+                </div>
+                <div className="snap-start flex-shrink-0 w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white">
+                 <img src="/images/products/p2.png" className="max-w-full max-h-full object-contain" alt="업사이클링 지갑" />
+              </div>
+              <div className="snap-start flex-shrink-0 w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white">
+      <img src="/images/products/product3.jpg" className="max-w-full max-h-full object-contain" alt="에코백" />
+    </div>
+  </div>
+</div>
         </div>
       </div>
     </Layout>
