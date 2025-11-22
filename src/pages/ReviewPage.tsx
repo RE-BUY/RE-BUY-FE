@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Layout from '../components/Layout';
 import TopNav from '../components/TopNav';
+import { useNavigate } from 'react-router-dom'; // ← 추가
 
 interface Product {
   id: number;
@@ -15,7 +16,7 @@ interface Review {
   content: string;
   date: string;
   status: '공개' | '비공개';
-  rating: number; // 별점 추가
+  rating: number;
 }
 
 const products: Product[] = [
@@ -25,12 +26,13 @@ const products: Product[] = [
 ];
 
 export default function ReviewPage() {
+  const navigate = useNavigate(); // ← 이전 버튼용
   const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
   const [newStatus, setNewStatus] = useState<'공개' | '비공개'>('공개');
-  const [newRating, setNewRating] = useState(5); // 기본 5점
+  const [newRating, setNewRating] = useState(5);
 
   const handleAddReview = () => {
     if (!selectedProductId) {
@@ -67,13 +69,21 @@ export default function ReviewPage() {
       <div className="flex flex-col h-full bg-white relative">
         <TopNav />
 
-        <div className="flex-1 overflow-y-auto px-5 pt-4 pb-20 space-y-6">
+        {/* 이전 버튼 */}
+        <div className="px-5 pt-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1 mb-4"
+          >
+            ◀ 이전
+          </button>
+        </div>
 
+        <div className="flex-1 overflow-y-auto px-5 pt-0 pb-20 space-y-6">
           {/* 리뷰 작성 섹션 */}
           <section className="mb-6 border rounded-xl p-4 shadow-sm space-y-3">
             <h2 className="font-bold text-gray-800 mb-2">리뷰 작성</h2>
 
-            {/* 상품 선택 */}
             <select
               className="w-full mb-2 p-2 border rounded"
               value={selectedProductId ?? ''}
@@ -85,15 +95,13 @@ export default function ReviewPage() {
               ))}
             </select>
 
-            {/* 별점 선택 */}
             <div className="flex items-center gap-1 mb-2">
               {[1,2,3,4,5].map((star) => (
                 <span
                   key={star}
                   onClick={() => setNewRating(star)}
                   className={`cursor-pointer text-2xl ${star <= newRating ? 'text-yellow-400' : 'text-gray-300'}`}
-                >
-                  ★
+                > ★
                 </span>
               ))}
             </div>
@@ -146,7 +154,6 @@ export default function ReviewPage() {
                     <p className="font-bold text-gray-800">{item.product.name}</p>
                   </div>
 
-                  {/* 별점 표시 */}
                   <div className="flex text-yellow-400 gap-1">
                     {Array.from({length: item.rating}).map((_, idx) => <span key={idx}>★</span>)}
                     {Array.from({length: 5 - item.rating}).map((_, idx) => <span key={idx} className="text-gray-300">★</span>)}
@@ -163,7 +170,6 @@ export default function ReviewPage() {
               ))}
             </ul>
           )}
-
         </div>
       </div>
     </Layout>

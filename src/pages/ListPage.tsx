@@ -11,12 +11,6 @@ export default function ListPage() {
   const [searchParams] = useSearchParams();
   const [scrollY, setScrollY] = useState(0);
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const hideThreshold = 100; // (TopNav + SearchBar 높이)
-
-  // URL 파라미터에서 카테고리 직접 파생 (useEffect 대신)
-  const selectedCategory = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState(
     searchParams.get("category") || "all"
   );
@@ -150,7 +144,7 @@ export default function ListPage() {
                   {product.model && (
                     <p className="text-xs text-gray-500 mb-1">{product.model}</p>
                   )}
-                  <p className="text-sm font-bold text-red1">
+                  <p className="text-sm font-bold text-orange-600">
                     {product.price.toLocaleString()}원
                   </p>
                 </div>
@@ -165,6 +159,7 @@ export default function ListPage() {
           onClose={() => setIsCategoryOpen(false)}
           selectedCategory={selectedCategory}
           onSelectCategory={(category) => {
+            setSelectedCategory(category);
             navigate(`/list${category !== "all" ? `?category=${category}` : ""}`);
           }}
         />

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Layout from '../components/Layout';
 import TopNav from '../components/TopNav';
+import { useNavigate } from 'react-router-dom'; // ← 추가
 
 interface Inquiry {
   id: number;
@@ -13,10 +14,10 @@ interface Inquiry {
 }
 
 export default function InquiryPage() {
-  // 예시 최근 본 상품 (선택용)
+  const navigate = useNavigate(); // ← 이전 버튼용
+
   const products = ['리사이클링 지갑', '저탄소 우유', '에코백', '텀블러'];
 
-  // 기존 문의 목록
   const [inquiries, setInquiries] = useState<Inquiry[]>([
     { 
       id: 1, 
@@ -46,12 +47,10 @@ export default function InquiryPage() {
     },
   ]);
 
-  // 새 문의 작성 상태
   const [newProduct, setNewProduct] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [newContent, setNewContent] = useState('');
 
-  // 문의 제출
   const handleSubmit = () => {
     if (!newProduct || !newTitle || !newContent) {
       alert('모든 항목을 입력해주세요.');
@@ -68,13 +67,11 @@ export default function InquiryPage() {
     };
 
     setInquiries([newInquiry, ...inquiries]);
-    // 입력 초기화
     setNewProduct('');
     setNewTitle('');
     setNewContent('');
   };
 
-  // 답변 토글 컴포넌트
   const AnswerToggle = ({ answer }: { answer: string }) => {
     const [open, setOpen] = useState(false);
 
@@ -89,10 +86,8 @@ export default function InquiryPage() {
 
         {open && (
           <div className="flex items-start gap-2 mt-2">
-            {/* 세로 연결선 */}
             <div className="w-0.5 bg-gray-300 h-full mt-1"></div>
-            {/* 답변 박스 */}
-            <div className="flex-1 p-2 bg-green-50 text-green-800 text-sm rounded">
+            <div className="flex-1 p-2 bg-[#849b89] text-[#ffffff] text-sm rounded">
               {answer}
             </div>
           </div>
@@ -104,10 +99,19 @@ export default function InquiryPage() {
   return (
     <Layout>
       <div className="flex flex-col h-full bg-white relative">
-        {/* TopNav */}
         <TopNav />
 
-        <div className="flex-1 overflow-y-auto px-5 pt-4 pb-20 space-y-6">
+        {/* 이전 버튼 */}
+        <div className="px-5 pt-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-sm text-gray-600 hover:text-gray-800 flex items-center gap-1 mb-4"
+          >
+            ◀ 이전
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-5 pb-20 space-y-6">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">문의 내역</h2>
 
           {/* 새 문의 작성 폼 */}
@@ -119,8 +123,10 @@ export default function InquiryPage() {
               className="w-full mb-2 px-3 py-2 border rounded"
             >
               <option value="">문의할 상품 선택</option>
-              {products.map((p) => (
-                <option key={p} value={p}>{p}</option>
+              {products
+                .filter((p) => !inquiries.some((inq) => inq.product === p))
+                .map((p) => (
+                  <option key={p} value={p}>{p}</option>
               ))}
             </select>
 
@@ -166,13 +172,11 @@ export default function InquiryPage() {
 
                   <p className="text-sm text-gray-600">{item.content}</p>
 
-                  {/* 상태 배지 */}
                   <span className={`mt-2 text-xs font-semibold px-2 py-1 rounded-full self-start
                     ${item.status === '답변 완료' ? 'bg-gray-100 text-[#3d5a44]' : 'bg-gray-100 text-gray-700'}`}>
                     {item.status}
                   </span>
 
-                  {/* 답변 토글 */}
                   {item.status === '답변 완료' && item.answer && (
                     <AnswerToggle answer={item.answer} />
                   )}
