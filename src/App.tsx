@@ -1,5 +1,6 @@
 import './App.css'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { CartProvider } from './contexts/CartContext'
 import MainPage from './pages/MainPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -15,6 +16,7 @@ import ListPage from './pages/ListPage'
 
 function App() {
   return (
+    <CartProvider>
     <BrowserRouter>
       <div className="mobile-frame relative">
         <div className="h-full">
@@ -36,6 +38,7 @@ function App() {
         </div>
       </div>
     </BrowserRouter>
+    </CartProvider>
   )
 }
 
