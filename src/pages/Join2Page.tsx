@@ -48,4 +48,5 @@ const Join2Page: React.FC = () => {
   );
 };
 
+
 export default Join2Page;

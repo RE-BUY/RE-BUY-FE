@@ -1,13 +1,148 @@
-import BottomNav from "../components/BottomNav";
+import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import Layout from "../components/Layout";
+import TopNav from "../components/TopNav";
+import SearchBar from "../components/SearchBar";
+import CategorySidebar from "../components/CategorySidebar";
+import { products } from "../data/products";
 
 export default function ListPage() {
+  const navigate = useNavigate();
+  const [scrollY, setScrollY] = useState(0);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("fashion");
+  const [searchQuery, setSearchQuery] = useState("");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const hideThreshold = 100; // (TopNav + SearchBar 높이)
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      setScrollY(scrollContainer.scrollTop);
+    };
+
+    scrollContainer.addEventListener("scroll", handleScroll);
+    return () => scrollContainer.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // 스크롤 위치에 따른 검색창 transform 및 opacity 계산
+  // TopNav 높이(약 56px) + SearchBar 높이(약 60px) = 약 116px까지 올라가야 완전히 사라짐
+  const searchBarOpacity = Math.max(0, 1 - scrollY / hideThreshold);
+  const searchBarTransform = -Math.min(scrollY, hideThreshold);
+  
+  // 검색창이 사라질 때 상품 그리드가 위로 올라오도록 margin-top 조정
+  const productGridMarginTop = Math.min(scrollY, hideThreshold);
+  const initialPaddingTop = 100; // 검색창과 상품 이미지 사이 여백 (기존 116px에서 줄임)
+
+  // 검색어 및 카테고리로 상품 필터링
+  const filteredProducts = products.filter((product) => {
+    // 카테고리 필터링
+    if (selectedCategory && product.category !== selectedCategory) {
+      return false;
+    }
+    
+    // 검색어 필터링
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      const matchesSearch = 
+        product.brand.toLowerCase().includes(query) ||
+        product.type.toLowerCase().includes(query) ||
+        (product.model && product.model.toLowerCase().includes(query));
+      if (!matchesSearch) return false;
+    }
+    
+    return true;
+  });
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+  };
+
   return (
-    <div className="flex flex-col h-screen bg-white text-main overflow-hidden pb-16">
-      <div className="flex m-6">
-        <p className="text-sm font-medium">list</p>
+    <Layout>
+      <div className="flex flex-col h-full relative">
+        <div className="relative z-50 bg-white">
+          <TopNav />
+        </div>
+        <div
+          className="absolute top-0 left-0 right-0 transition-all duration-300 ease-out z-40"
+          style={{
+            opacity: searchBarOpacity,
+            transform: `translateY(${searchBarTransform}px)`,
+            pointerEvents: scrollY > hideThreshold ? "none" : "auto",
+            marginTop: '56px', // TopNav 높이만큼
+          }}
+        >
+          <SearchBar 
+            showMenuIcon={true}
+            onMenuClick={() => setIsCategoryOpen(true)}
+            onSearch={handleSearch}
+            onChange={handleSearch}
+          />
+        </div>
+        
+        {/* Product Grid - 스크롤 가능 */}
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto px-4 transition-all duration-300 ease-out relative z-45"
+          style={{ 
+            WebkitOverflowScrolling: "touch",
+            paddingTop: `${Math.max(0, initialPaddingTop - productGridMarginTop)}px`, // 검색창이 사라질 때 padding 감소
+            paddingBottom: "100px", // 하단바 높이(55px) + 여유 공간(65px) - 다양한 기기 대응
+          }}
+        >
+          <div className="grid grid-cols-2 gap-4">
+            {filteredProducts.length === 0 && searchQuery ? (
+              <div className="col-span-2 text-center py-8 text-gray-500">
+                검색 결과가 없습니다.
+              </div>
+            ) : (
+              filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className="flex flex-col cursor-pointer"
+                onClick={() => navigate(`/detail?id=${product.id}`)}
+              >
+                {/* Product Image */}
+                <div className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200">
+                  <img
+                    src={product.image}
+                    alt={`${product.brand} ${product.type}`}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      // 이미지 로드 실패 시 숨기고 배경색만 표시
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+                
+                {/* Product Info */}
+                <div className="px-1 pb-2">
+                  <p className="text-sm font-medium text-gray-800">{product.brand}</p>
+                  <p className="text-xs text-gray-600 mb-1">{product.type}</p>
+                  {product.model && (
+                    <p className="text-xs text-gray-500 mb-1">{product.model}</p>
+                  )}
+                  <p className="text-sm font-bold text-orange-600">
+                    {product.price.toLocaleString()}원
+                  </p>
+                </div>
+              </div>
+              ))
+            )}
+          </div>
+        </div>
+        
+        <CategorySidebar
+          isOpen={isCategoryOpen}
+          onClose={() => setIsCategoryOpen(false)}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+        />
       </div>
-      <BottomNav className="absolute bottom-0 left-0 right-0" />
-    </div>
+    </Layout>
   );
 }
 
