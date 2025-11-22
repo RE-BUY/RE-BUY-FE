@@ -5,48 +5,53 @@ import earthIconImage from '../assets/earth.svg';
 const Join2Page: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleGoLogin = () => {
-    navigate('/login');
-  };
-
   return (
-    <div className="flex min-h-screen flex-col bg-white">
-      <header className="flex items-center justify-center border-b border-[#D5E4D8] bg-white py-4">
-        <img
-          src={earthIconImage}
-          alt="RE:BUY 로고"
-          className="mr-2 h-8 w-8"
-        />
-        <span className="text-xl font-bold text-[#4F7457]">RE:BUY</span>
-      </header>
+    <div className="flex flex-col w-full h-full bg-white text-main">
+      <main className="flex flex-col items-center justify-start mt-[74px] px-10 text-center">
+        
+        {/* RE:BUY 로고 텍스트 */}
+        <h1 className="text-[40px] font-black tracking-wide text-main mb-3">
+          RE:BUY
+        </h1>
 
-      {/* Main Content */}
-      <main className="flex flex-grow flex-col items-center justify-center p-6 text-center">
-        <img
-          src={earthIconImage}
-          alt="가입 완료 아이콘"
-          className="mb-6 h-24 w-24 opacity-80"
-        />
-
-        <h2 className="mb-2 text-3xl font-bold text-[#4F7457]">
-          가입 완료!
-        </h2>
-
-        <p className="mb-8 text-gray-600">
-          RE:BUY의 회원이 되신 것을 환영합니다.<br />
-          지금 바로 로그인을 진행해주세요.
+        {/* 가입 완료 문구 */}
+        <p className="text-lg font-medium text-main mb-16">
+          회원가입이 완료되었습니다.
         </p>
 
+        {/* 지구 아이콘 */}
+        <img
+          src={earthIconImage}
+          alt="earth icon"
+          className="w-40 h-40 mb-6 opacity-95"
+        />
+
+        {/* 안내 문구 */}
+        <p className="text-sm text-main leading-relaxed mb-11">
+          RE:BUY와 함께 더 나은 내일을 만들어봐요!
+        </p>
+
+        {/* 홈으로 가기 버튼 */}
         <button
-          onClick={handleGoLogin}
-          className="w-full max-w-xs rounded-lg bg-[#4F7457] py-3 text-lg font-semibold text-white shadow-md transition-colors hover:bg-[#8FAB95]"
+          onClick={() => navigate('/main')}
+          className="w-full max-w-xs py-3 bg-[#8FAB95] text-white rounded-xl font-semibold text-base"
         >
-          로그인하러 가기
+          홈으로 가기
         </button>
+
+        {/* about */}
+        <div className="text-center mb-10">
+          <p className="text-xs mt-4 text-gray-500">RE:BUY에 관하여 더 궁금하신가요?</p>
+          <button
+            className="text-sm text-main underline mt-1"
+            onClick={() => navigate("/main")}
+          >
+            about RE:BUY
+          </button>
+        </div>
       </main>
     </div>
   );
 };
-
 
 export default Join2Page;
