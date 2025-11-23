@@ -67,7 +67,7 @@ export default function PurchaseHistoryPage() {
         <TopNav />
 
         {/* 컨텐츠 (스크롤 가능 영역) */}
-        <div className="flex-1 overflow-y-auto px-5 pt-4">
+        <div className="flex-1 overflow-y-auto px-5 pt-4 pb-24">
           <div className="py-4 pt-8 pb-6">
             <h2 className="text-2xl font-bold text-gray-900">구매내역</h2>
           </div>
@@ -127,7 +127,7 @@ export default function PurchaseHistoryPage() {
 
         {/* 총 구매금액 박스: 하단 고정 */}
         {!isLoading && orders.length > 0 && (
-          <div className="absolute bottom-2 left-0 right-0 px-5 pb-2 bg-white border-t border-gray-200">
+          <div className="fixed bottom-[60px] left-0 right-0 max-w-full mx-auto px-5 pb-2 bg-white border-t border-gray-200 z-30">
             <div className="bg-sub1/30 rounded-xl p-4 flex justify-between items-center">
               <span className="font-bold text-gray-800">총 구매금액</span>
               <span className="font-bold text-red-500">{totalPrice.toLocaleString()}원</span>
