@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { products } from '../data/products';
 import { getReviewsByProductId } from '../data/reviews';
 import { getBrandInfo } from '../data/brands';
 import { useCart } from '../contexts/CartContext';
+import { addToCart, clearCart } from '../services/cartService';
+import { getProduct, type Product as ApiProduct } from '../services/productService';
+import { checkoutOrder } from '../services/orderService';
+import { getMyPageInfo } from '../services/myPageService';
 import earthIcon from '../assets/earth.svg';
 import basketIcon from '../assets/basket.svg';
 
@@ -11,7 +15,6 @@ export default function DetailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const productId = parseInt(searchParams.get('id') || '1');
-  const product = products.find(p => p.id === productId) || products[0];
   const { setCartItems, cartItems, cartItemCount } = useCart();
   const [activeTab, setActiveTab] = useState<'info' | 'review' | 'inquiry'>('info');
   const [showCartMessage, setShowCartMessage] = useState(false);
@@ -21,6 +24,38 @@ export default function DetailPage() {
     content: '',
   });
   const [inquirySubmitted, setInquirySubmitted] = useState(false);
+  const [apiProduct, setApiProduct] = useState<ApiProduct | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // API에서 상품 상세 정보 가져오기
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setIsLoading(true);
+      try {
+        const productData = await getProduct(productId);
+        setApiProduct(productData);
+      } catch (error) {
+        console.error('상품 상세 조회 실패:', error);
+        // 에러 발생 시 로컬 데이터 사용
+        setApiProduct(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProduct();
+  }, [productId]);
+
+  // API 상품 또는 로컬 상품 사용
+  const localProduct = products.find(p => p.id === productId) || products[0];
+  const product = apiProduct ? {
+    id: apiProduct.id,
+    brand: apiProduct.manufacturer || apiProduct.name,
+    type: apiProduct.name,
+    price: apiProduct.price,
+    image: apiProduct.imageUrl,
+    category: apiProduct.category,
+  } : localProduct;
 
   // 브랜드 정보 가져오기
   const brandInfo = getBrandInfo(product.brand);
@@ -56,43 +91,91 @@ export default function DetailPage() {
   };
 
   // 장바구니에 추가
-  const handleAddToCart = () => {
-    const existingItem = cartItems.find(item => item.id === product.id);
-    if (existingItem) {
-      setCartItems(cartItems.map(item => 
-        item.id === product.id 
-          ? { ...item, qty: item.qty + 1 }
-          : item
-      ));
-    } else {
-      setCartItems([...cartItems, {
-        id: product.id,
-        name: product.type,
-        price: product.price,
-        qty: 1,
-        img: product.image
-      }]);
+  const handleAddToCart = async () => {
+    try {
+      // API 호출
+      await addToCart(product.id, 1);
+      
+      // 로컬 상태도 업데이트 (UI 반영)
+      const existingItem = cartItems.find(item => item.id === product.id);
+      if (existingItem) {
+        setCartItems(cartItems.map(item => 
+          item.id === product.id 
+            ? { ...item, qty: item.qty + 1 }
+            : item
+        ));
+      } else {
+        setCartItems([...cartItems, {
+          id: product.id,
+          name: product.type,
+          price: product.price,
+          qty: 1,
+          img: product.image
+        }]);
+      }
+      
+      // 담기 성공 메시지 표시
+      setShowCartMessage(true);
+      setTimeout(() => setShowCartMessage(false), 2000);
+    } catch (error) {
+      console.error('장바구니 추가 실패:', error);
+      alert('장바구니에 추가하는데 실패했습니다. 다시 시도해주세요.');
     }
-    // 담기 성공 메시지 표시
-    setShowCartMessage(true);
-    setTimeout(() => setShowCartMessage(false), 2000);
   };
 
-  // 구매하기 - 장바구니에 상품이 있는지 확인하고 없으면 추가
-  const handlePurchase = () => {
-    const existingItem = cartItems.find(item => item.id === product.id);
-    if (!existingItem) {
-      // 장바구니에 없으면 추가
-      setCartItems([...cartItems, {
-        id: product.id,
-        name: product.type,
-        price: product.price,
-        qty: 1,
-        img: product.image
-      }]);
+  // 구매하기 - 바로 구매 처리
+  const handlePurchase = async () => {
+    try {
+      // 1. 장바구니에 상품 추가 (서버)
+      try {
+        await addToCart(product.id, 1);
+      } catch (error) {
+        console.error('장바구니 추가 실패:', error);
+        // 장바구니 추가 실패해도 계속 진행
+      }
+
+      // 2. 보유 크레딧 조회
+      let availableCredit = 0;
+      try {
+        const myPageInfo = await getMyPageInfo();
+        availableCredit = myPageInfo.totalCredit || 0;
+      } catch (error) {
+        console.error('크레딧 조회 실패:', error);
+      }
+
+      // 3. 총 금액 계산
+      const totalAmount = product.price;
+      const creditToUse = Math.min(availableCredit, totalAmount);
+
+      // 4. 체크아웃 정보 (임시 값)
+      const checkoutData = {
+        creditToUse: creditToUse,
+        receiverName: '홍길동', // TODO: 실제 입력값으로 교체
+        address: '서울시 강남구 테헤란로 123', // TODO: 실제 입력값으로 교체
+        contactPhone: '010-1234-5678', // TODO: 실제 입력값으로 교체
+      };
+
+      // 5. 주문 체크아웃 (바로 구매)
+      await checkoutOrder(checkoutData);
+
+      // 6. 구매 완료 메시지 표시
+      alert('구매가 완료되었습니다!');
+
+      // 7. 서버 장바구니 비우기
+      try {
+        await clearCart();
+      } catch (error) {
+        console.error('장바구니 비우기 실패:', error);
+      }
+
+      // 8. 주문내역 페이지로 이동
+      setTimeout(() => {
+        navigate('/history');
+      }, 100);
+    } catch (error) {
+      console.error('구매 처리 실패:', error);
+      alert('구매 처리에 실패했습니다. 다시 시도해주세요.');
     }
-    // 장바구니 페이지로 이동
-    navigate('/shoppingBasket');
   };
 
   // 추가 상품 이미지들 (실제로는 상품별로 다를 수 있음)
@@ -101,6 +184,14 @@ export default function DetailPage() {
     product.image,
     product.image,
   ];
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center">
+        <p className="text-gray-500">상품 정보를 불러오는 중...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full bg-white relative">

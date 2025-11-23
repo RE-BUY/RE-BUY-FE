@@ -3,7 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import Layout from "../components/Layout";
 import TopNav from "../components/TopNav";
 import SearchBar from "../components/SearchBar";
-import { products } from "../data/products"; 
+import { products } from "../data/products";
+import { getRecommendations, type Recommendation } from "../services/recommendationService";
+import { getMyPageInfo } from "../services/myPageService";
+import { getCurrentReport } from "../services/reportService"; 
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -14,9 +17,20 @@ export default function HomePage() {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [aiInsight, setAiInsight] = useState<string>('');
+  const [username, setUsername] = useState<string>('');
+  const [waterSaved, setWaterSaved] = useState<number>(0);
+  const [treeSaved, setTreeSaved] = useState<number>(0);
   
-  // 추천 상품 (처음 3개)
-  const recommendedProducts = products.slice(0, 3);
+  // 추천 상품 (API에서 가져오기, 실패 시 기본값)
+  const recommendedProducts = recommendations.length > 0 
+    ? recommendations.map(rec => ({
+        id: rec.id,
+        image: products.find(p => p.id === rec.id)?.image || '/images/products/p1.png',
+        type: rec.productName,
+      }))
+    : products.slice(0, 3);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -25,6 +39,44 @@ export default function HomePage() {
 
     return () => clearInterval(interval);
   }, [partners.length]);
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      try {
+        const data = await getRecommendations(5);
+        setRecommendations(data.recommendations);
+        setAiInsight(data.aiInsight);
+      } catch (error) {
+        console.error('AI 추천 상품 로드 실패:', error);
+        // 에러 발생 시 기본 상품 사용
+      }
+    };
+
+    const fetchUserInfo = async () => {
+      try {
+        // 사용자 정보와 환경 영향 데이터를 병렬로 가져오기
+        const [userInfo, report] = await Promise.all([
+          getMyPageInfo(),
+          getCurrentReport().catch(() => null) // 리포트 실패 시 null
+        ]);
+        
+        setUsername(userInfo.username);
+        
+        // 물 절약량: 리포트의 environmentalImpact.waterSaved 사용
+        const waterValue = report?.environmentalImpact?.waterSaved ?? 0;
+        setWaterSaved(waterValue);
+        
+        // 나무: MyPage의 pineTreeCount 사용 (리포트에 나무 정보가 없으므로)
+        setTreeSaved(userInfo.pineTreeCount || 0);
+      } catch (error) {
+        console.error('사용자 정보 로드 실패:', error);
+        // 에러 발생 시 기본값 유지
+      }
+    };
+
+    fetchRecommendations();
+    fetchUserInfo();
+  }, []);
 
   return (
     <Layout>
@@ -48,7 +100,7 @@ export default function HomePage() {
 
           {/* 절약 자원 표시 */}
           <div className="mt-8">
-            <h2 className="text-xl font-bold">Y님, 안녕하세요.</h2>
+            <h2 className="text-xl font-bold">{username || 'Y'}님, 안녕하세요.</h2>
             <p className="text-gray-600 text-sm mt-1">
               지금까지 RE:BUY로 절약한 자원
             </p>
@@ -61,7 +113,7 @@ export default function HomePage() {
               <p className="text-sm font-semibold">WATER</p>
               <div className="flex items-center gap-2">
                 <img src="/images/products/water_icon.png" className="w-12 h-12 -mt-4" alt="물 아이콘" />
-                <span className="text-[64px] font-extrabold font-baloo">23</span>
+                <span className="text-[64px] font-extrabold font-baloo">{waterSaved}</span>
                 <span className="text-[16px] font-extrabold font-baloo mt-6">L</span>
               </div>
             </div>
@@ -71,7 +123,7 @@ export default function HomePage() {
               <p className="text-sm font-semibold">TREE</p>
               <div className="flex items-center gap-2 mt-1">
                 <img src="/images/products/tree_icon.png" className="w-12 h-12 -mt-4" alt="나무 아이콘" />
-                <span className="text-[64px] font-extrabold font-baloo">12</span>
+                <span className="text-[64px] font-extrabold font-baloo">{treeSaved}</span>
                 <span className="text-[16px] font-extrabold font-baloo mt-6">T</span>
               </div>
             </div>
@@ -122,6 +174,9 @@ export default function HomePage() {
           {/* 추천 상품 */}
           <div className="mt-16 mb-12">
             <p className="font-semibold mb-3 text-[#4F7457] text-sm">추천 상품</p>
+            {aiInsight && (
+              <p className="text-xs text-gray-600 mb-3">{aiInsight}</p>
+            )}
               
             {/* 가로 스크롤 카드 */}
             <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
@@ -148,11 +203,9 @@ export default function HomePage() {
           <div className="text-center pb-4">
             <p className="text-[8px] text-main">© 2025 RE:BUY Team. All rights reserved.</p>
             <div className="flex flex-wrap justify-center gap-1 text-[8px] text-main">
-              <span>MADE BY</span>
-              <span>@yeaey_oo</span>
-              <span>@jungmini_l</span>
-              <span>@ys_xw</span>
-              <span>@nnobrainnmann</span>
+              {['MADE BY', '@yeaey_oo', '@jungmini_l', '@ys_xw', '@nnobrainnmann'].map((text, index) => (
+                <span key={index}>{text}</span>
+              ))}
             </div>
           </div>
         </div>

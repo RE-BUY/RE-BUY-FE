@@ -4,7 +4,8 @@ import Layout from "../components/Layout";
 import TopNav from "../components/TopNav";
 import SearchBar from "../components/SearchBar";
 import CategorySidebar from "../components/CategorySidebar";
-import { products } from "../data/products";
+import { getProducts, type Product } from "../services/productService";
+import { products as localProducts } from "../data/products";
 
 export default function ListPage() {
   const navigate = useNavigate();
@@ -15,6 +16,8 @@ export default function ListPage() {
     searchParams.get("category") || "all"
   );
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
+  const [apiProducts, setApiProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const hideThreshold = 100; // (TopNav + SearchBar 높이)
 
@@ -33,6 +36,31 @@ export default function ListPage() {
       setSearchQuery(query);
     }
   }, [searchParams]);
+
+  // API에서 상품 목록 가져오기
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setIsLoading(true);
+      try {
+        const categoryParam = selectedCategory !== "all" ? selectedCategory.toUpperCase() as any : undefined;
+        const response = await getProducts({
+          category: categoryParam,
+          q: searchQuery || undefined,
+          page: 0,
+          size: 100, // 충분히 큰 값으로 설정
+        });
+        setApiProducts(response.items);
+      } catch (error) {
+        console.error('상품 목록 조회 실패:', error);
+        // 에러 발생 시 로컬 데이터 사용
+        setApiProducts([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchProducts();
+  }, [selectedCategory, searchQuery]);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
@@ -55,25 +83,27 @@ export default function ListPage() {
   const productGridMarginTop = Math.min(scrollY, hideThreshold);
   const initialPaddingTop = 100; // 검색창과 상품 이미지 사이 여백 (기존 116px에서 줄임)
 
-  // 검색어 및 카테고리로 상품 필터링
-  const filteredProducts = products.filter((product) => {
-    // 카테고리 필터링 (전체가 아닐 때만)
-    if (selectedCategory && selectedCategory !== "all" && product.category !== selectedCategory) {
-      return false;
-    }
-    
-    // 검색어 필터링
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
-      const matchesSearch = 
-        product.brand.toLowerCase().includes(query) ||
-        product.type.toLowerCase().includes(query) ||
-        (product.model && product.model.toLowerCase().includes(query));
-      if (!matchesSearch) return false;
-    }
-    
-    return true;
-  });
+  // 검색어 및 카테고리로 상품 필터링 (로컬 데이터만 필터링, API는 서버에서 필터링됨)
+  const filteredProducts = apiProducts.length > 0 
+    ? apiProducts 
+    : localProducts.filter((product) => {
+        // 카테고리 필터링 (전체가 아닐 때만)
+        if (selectedCategory && selectedCategory !== "all" && product.category !== selectedCategory) {
+          return false;
+        }
+        
+        // 검색어 필터링
+        if (searchQuery.trim()) {
+          const query = searchQuery.toLowerCase();
+          const matchesSearch = 
+            product.brand.toLowerCase().includes(query) ||
+            product.type.toLowerCase().includes(query) ||
+            (product.model && product.model.toLowerCase().includes(query));
+          if (!matchesSearch) return false;
+        }
+        
+        return true;
+      });
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
@@ -113,43 +143,53 @@ export default function ListPage() {
           }}
         >
           <div className="grid grid-cols-2 gap-4">
-            {filteredProducts.length === 0 ? (
+            {isLoading ? (
+              <div className="col-span-2 text-center py-8 text-gray-500">
+                상품을 불러오는 중...
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="col-span-2 text-center py-8 text-gray-500">
                 {searchQuery ? "검색 결과가 없습니다." : "상품이 없습니다."}
               </div>
             ) : (
-              filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="flex flex-col cursor-pointer"
-                onClick={() => navigate(`/detail?id=${product.id}`)}
-              >
-                {/* Product Image */}
-                <div className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200">
-                  <img
-                    src={product.image}
-                    alt={`${product.brand} ${product.type}`}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      // 이미지 로드 실패 시 숨기고 배경색만 표시
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                </div>
+              filteredProducts.map((product) => {
+                // API 응답 형식인지 로컬 형식인지 확인
+                const isApiProduct = 'imageUrl' in product;
+                const productImage = isApiProduct ? (product as Product).imageUrl : (product as any).image;
+                const productName = isApiProduct ? (product as Product).name : (product as any).brand;
+                const productType = isApiProduct ? (product as Product).description : (product as any).type;
+                const productPrice = isApiProduct ? (product as Product).price : (product as any).price;
                 
-                {/* Product Info */}
-                <div className="px-1 pb-2">
-                  <p className="text-sm font-medium text-gray-800">{product.brand}</p>
-                  <p className="text-xs text-gray-600 mb-1">{product.type}</p>
-                  {product.model && (
-                    <p className="text-xs text-gray-500 mb-1">{product.model}</p>
-                  )}
-                  <p className="text-sm font-bold text-red1">
-                    {product.price.toLocaleString()}원
-                  </p>
-                </div>
-              </div>
-              ))
+                return (
+                  <div
+                    key={product.id}
+                    className="flex flex-col cursor-pointer"
+                    onClick={() => navigate(`/detail?id=${product.id}`)}
+                  >
+                    {/* Product Image */}
+                    <div className="relative w-full aspect-square bg-gray-100 rounded-lg overflow-hidden mb-2 border border-gray-200">
+                      <img
+                        src={productImage}
+                        alt={productName}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          // 이미지 로드 실패 시 숨기고 배경색만 표시
+                          (e.target as HTMLImageElement).style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    
+                    {/* Product Info */}
+                    <div className="px-1 pb-2">
+                      <p className="text-sm font-medium text-gray-800">{productName}</p>
+                      <p className="text-xs text-gray-600 mb-1">{productType}</p>
+                      <p className="text-sm font-bold text-red1">
+                        {productPrice.toLocaleString()}원
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
