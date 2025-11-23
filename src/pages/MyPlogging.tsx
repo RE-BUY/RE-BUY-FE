@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import TopNav from '../components/TopNav';
-import { getMyApplications } from '../services/activityService';
-import { ploggingItems } from '../data/products';
+import { getMyApplications, type Activity } from '../services/activityService';
 
 export default function MyPloggingPage() {
-  const [appliedActivities, setAppliedActivities] = useState<number[]>([]);
+  const [appliedActivities, setAppliedActivities] = useState<Activity[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -16,24 +15,20 @@ export default function MyPloggingPage() {
         console.log('신청한 활동 데이터:', activitiesData);
         console.log('활동 개수:', activitiesData.items?.length || 0);
         
-        // 신청한 활동 ID만 추출 (이 API는 이미 신청한 활동만 반환)
-        const appliedIds: number[] = [];
+        // API에서 받은 활동 정보를 그대로 사용
         if (activitiesData.items) {
           activitiesData.items.forEach(activity => {
-            console.log(`활동 ID: ${activity.id}, participationId: ${activity.participationId}`);
-            appliedIds.push(activity.id);
-            console.log(`  → 신청한 활동으로 추가됨: ${activity.id}`);
+            console.log(`활동 ID: ${activity.id}, 이름: ${activity.name}, 장소: ${activity.location}, 날짜: ${activity.date}, 시간: ${activity.time}`);
           });
+          setAppliedActivities(activitiesData.items);
+        } else {
+          setAppliedActivities([]);
         }
         
-        console.log('신청한 활동 ID 목록:', appliedIds);
-        console.log('로컬 ploggingItems ID:', ploggingItems.map(item => item.id));
-        console.log('매칭되는 항목:', ploggingItems.filter(item => appliedIds.includes(item.id)).map(item => item.id));
         console.log('========================');
-        
-        setAppliedActivities(appliedIds);
       } catch (error) {
         console.error('신청한 활동 목록 조회 실패:', error);
+        setAppliedActivities([]);
       } finally {
         setIsLoading(false);
       }
@@ -59,22 +54,34 @@ export default function MyPloggingPage() {
               <p>신청한 플로깅이 없습니다.</p>
             </div>
           ) : (
-            ploggingItems
-              .filter(item => appliedActivities.includes(item.id))
-              .map(item => (
-                <div key={item.id} className="border rounded-xl p-4 shadow-sm flex justify-between items-center">
-                  <div>
-                    <p><span className="font-bold">장소:</span> {item.place}</p>
-                    <p><span className="font-bold">날짜:</span> {item.date}</p>
-                    <p><span className="font-bold">시간:</span> {item.time}</p>
-                    <p><span className="font-bold">모집인원:</span> {item.capacity}명</p>
-                  </div>
-
-                  <div className="px-4 py-2 rounded-lg font-medium bg-main text-white">
-                    신청완료
-                  </div>
+            appliedActivities.map((activity) => (
+              <div key={activity.id} className="border rounded-xl p-4 shadow-sm flex justify-between items-center">
+                <div>
+                  {activity.name && (
+                    <p className="font-bold text-lg mb-2">{activity.name}</p>
+                  )}
+                  {activity.location && (
+                    <p><span className="font-bold">장소:</span> {activity.location}</p>
+                  )}
+                  {activity.date && (
+                    <p><span className="font-bold">날짜:</span> {activity.date}</p>
+                  )}
+                  {activity.time && (
+                    <p><span className="font-bold">시간:</span> {activity.time}</p>
+                  )}
+                  {activity.capacity !== undefined && (
+                    <p><span className="font-bold">모집인원:</span> {activity.capacity}명</p>
+                  )}
+                  {activity.currentParticipants !== undefined && activity.capacity !== undefined && (
+                    <p><span className="font-bold">현재 참여자:</span> {activity.currentParticipants}/{activity.capacity}명</p>
+                  )}
                 </div>
-              ))
+
+                <div className="px-4 py-2 rounded-lg font-medium bg-main text-white">
+                  신청완료
+                </div>
+              </div>
+            ))
           )}
         </div>
       </div>

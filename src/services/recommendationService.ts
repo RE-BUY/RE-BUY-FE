@@ -3,7 +3,8 @@ import axios from 'axios';
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 export interface Recommendation {
-  id: number;
+  id?: number; // 레거시 호환성
+  productId: number; // 실제 상품 ID
   productName: string;
   reason?: string;
 }
