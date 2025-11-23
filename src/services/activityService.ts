@@ -23,6 +23,11 @@ export interface ActivitiesResponse {
   size?: number;
 }
 
+export interface CheckApplicationResponse {
+  isApplied: boolean; // 사용자가 신청했는지 여부
+  participationId?: number; // 참여 ID (신청한 경우)
+}
+
 const apiClient = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -66,21 +71,90 @@ apiClient.interceptors.response.use(
 );
 
 /**
- * 활동 목록 조회
+ * 활동 목록 조회 (신청 여부 포함)
  * @returns Promise<ActivitiesResponse>
  */
 export const getActivities = async (): Promise<ActivitiesResponse> => {
   const response = await apiClient.get<ActivitiesResponse>('/api/v1/activities');
-  return response.data;
+  const activities = response.data;
+  
+  // 각 활동에 대해 신청 여부 확인
+  if (activities.items && activities.items.length > 0) {
+    const checkPromises = activities.items.map(async (activity) => {
+      try {
+        const checkResult = await checkApplication(activity.id);
+        return {
+          ...activity,
+          isApplied: checkResult.isApplied,
+          participationId: checkResult.participationId,
+        };
+      } catch (error) {
+        // checkApplication 실패 시 기본값 사용
+        console.warn(`활동 ${activity.id} 신청 여부 확인 실패:`, error);
+        return {
+          ...activity,
+          isApplied: false,
+          participationId: undefined,
+        };
+      }
+    });
+    
+    const activitiesWithStatus = await Promise.all(checkPromises);
+    return {
+      ...activities,
+      items: activitiesWithStatus,
+    };
+  }
+  
+  return activities;
 };
 
 /**
- * 특정 활동 상세 정보 조회
+ * 특정 활동 상세 정보 조회 (신청 여부 포함)
  * @param activityId 활동 ID
  * @returns Promise<Activity>
  */
 export const getActivity = async (activityId: number): Promise<Activity> => {
   const response = await apiClient.get<Activity>(`/api/v1/activities/${activityId}`);
+  const activity = response.data;
+  
+  // 신청 여부 확인
+  try {
+    const checkResult = await checkApplication(activityId);
+    return {
+      ...activity,
+      isApplied: checkResult.isApplied,
+      participationId: checkResult.participationId,
+    };
+  } catch (error) {
+    // checkApplication 실패 시 기본값 사용
+    console.warn(`활동 ${activityId} 신청 여부 확인 실패:`, error);
+    return {
+      ...activity,
+      isApplied: false,
+      participationId: undefined,
+    };
+  }
+};
+
+/**
+ * 내가 신청한 활동 목록 조회
+ * @returns Promise<ActivitiesResponse>
+ */
+export const getMyApplications = async (): Promise<ActivitiesResponse> => {
+  const response = await apiClient.get<ActivitiesResponse>('/api/v1/activities/my-applications');
+  return response.data;
+};
+
+/**
+ * 활동 신청 여부 확인
+ * @param activityId 활동 ID
+ * @returns Promise<CheckApplicationResponse>
+ */
+export const checkApplication = async (activityId: number): Promise<CheckApplicationResponse> => {
+  const response = await apiClient.get<CheckApplicationResponse>(
+    `/api/v1/activities/${activityId}/check-application`
+  );
   return response.data;
 };
 

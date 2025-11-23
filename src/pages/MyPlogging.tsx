@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Layout from '../components/Layout';
 import TopNav from '../components/TopNav';
-import { getActivities } from '../services/activityService';
+import { getMyApplications } from '../services/activityService';
 import { ploggingItems } from '../data/products';
 
 export default function MyPloggingPage() {
@@ -11,21 +11,18 @@ export default function MyPloggingPage() {
   useEffect(() => {
     const fetchAppliedActivities = async () => {
       try {
-        const activitiesData = await getActivities();
+        const activitiesData = await getMyApplications();
         console.log('=== 마이플로깅 디버깅 ===');
-        console.log('전체 활동 데이터:', activitiesData);
+        console.log('신청한 활동 데이터:', activitiesData);
         console.log('활동 개수:', activitiesData.items?.length || 0);
         
-        // 이미 신청한 활동 ID만 추출
+        // 신청한 활동 ID만 추출 (이 API는 이미 신청한 활동만 반환)
         const appliedIds: number[] = [];
         if (activitiesData.items) {
           activitiesData.items.forEach(activity => {
-            console.log(`활동 ID: ${activity.id}, isApplied: ${activity.isApplied}, participationId: ${activity.participationId}`);
-            // isApplied 필드가 true이거나 participationId가 있으면 신청한 활동
-            if (activity.isApplied || activity.participationId) {
-              appliedIds.push(activity.id);
-              console.log(`  → 신청한 활동으로 추가됨: ${activity.id}`);
-            }
+            console.log(`활동 ID: ${activity.id}, participationId: ${activity.participationId}`);
+            appliedIds.push(activity.id);
+            console.log(`  → 신청한 활동으로 추가됨: ${activity.id}`);
           });
         }
         
@@ -36,7 +33,7 @@ export default function MyPloggingPage() {
         
         setAppliedActivities(appliedIds);
       } catch (error) {
-        console.error('활동 목록 조회 실패:', error);
+        console.error('신청한 활동 목록 조회 실패:', error);
       } finally {
         setIsLoading(false);
       }
