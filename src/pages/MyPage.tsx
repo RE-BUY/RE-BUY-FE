@@ -107,9 +107,14 @@ export default function MyPage() {
 
   return (
     <Layout>
-      <div className="flex flex-col h-full bg-white overflow-y-auto pb-10">
-        <TopNav />
+      <div className="flex flex-col h-full bg-white relative">
+        {/* TopNav 고정 */}
+        <div className="sticky top-0 z-50 bg-white">
+          <TopNav />
+        </div>
 
+        {/* 컨텐츠 영역 (스크롤 가능) */}
+        <div className="flex-1 overflow-y-auto pb-10">
         {/* 유저 정보 */}
         <section className="px-6 pt-4 pb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-1">{userInfo.name}님</h1>
@@ -206,6 +211,7 @@ export default function MyPage() {
         <div className="mt-10 px-6 flex gap-6 text-sm text-gray-400">
           <button onClick={handleLogout} className="underline hover:text-gray-600">로그아웃</button>
           <button className="underline hover:text-gray-600">회원탈퇴</button>
+        </div>
         </div>
       </div>
 
