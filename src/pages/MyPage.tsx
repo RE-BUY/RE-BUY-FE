@@ -61,12 +61,19 @@ export default function MyPage() {
     treesSaved: treeSaved,
   };
 
-  const recentItems: Product[] = [
-    { id: 1, name: '리사이클링 지갑', img: '/images/products/p1.png', brand: '프라이탁' },
-    { id: 2, name: '저탄소 우유', img: '/images/products/p2.png', brand: '그린밀크' },
-    { id: 3, name: '에코백', img: '/images/products/p33.png', brand: '에코백브랜드' },
-    { id: 4, name: '텀블러', img: '/images/products/p4.png', brand: '그린텀블러' },
-  ];
+  const [recentItems, setRecentItems] = useState<Product[]>([]);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("recentProducts") || "[]");
+    // localStorage 형식 { id, name, image }를 Product 형식 { id, name, img, brand }로 변환
+    const convertedItems: Product[] = saved.map((item: { id: number; name: string; image: string }) => ({
+      id: item.id,
+      name: item.name,
+      img: item.image,
+      brand: '', // brand는 저장하지 않으므로 빈 문자열
+    }));
+    setRecentItems(convertedItems);
+  }, []);
 
   const quickMenus = [
     { name: '구매내역', icon: '/images/products/receipt.png' },

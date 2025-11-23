@@ -61,6 +61,27 @@ export default function DetailPage() {
   const [apiProduct, setApiProduct] = useState<ApiProduct | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 🔥 최근 본 상품 저장하는 함수
+  const saveRecentProduct = (product: { id?: number; name?: string; imageUrl?: string; type?: string }) => {
+    if (!product?.id) return;
+
+    const recent = JSON.parse(localStorage.getItem("recentProducts") || "[]");
+
+    const newItem = {
+      id: product.id,
+      name: product.name || product.type || '',
+      image: product.imageUrl || '',
+    };
+
+    // 중복 제거 + 최신순 10개 유지
+    const updated = [
+      newItem,
+      ...recent.filter((item: { id: number }) => item.id !== product.id)
+    ].slice(0, 10);
+
+    localStorage.setItem("recentProducts", JSON.stringify(updated));
+  };
+
   // API에서 상품 상세 정보 가져오기
 // API에서 상품 상세 정보 가져오기
 useEffect(() => {
@@ -110,6 +131,18 @@ useEffect(() => {
     image: localProduct.image,
     additionalImages: [] as string[], // 로컬 상품은 추가 이미지 없음
   };
+
+  // 최근 본 상품 저장
+  useEffect(() => {
+    if (product?.id) {
+      saveRecentProduct({
+        id: product.id,
+        name: apiProduct?.name || product.type,
+        imageUrl: product.imageUrl,
+        type: product.type,
+      });
+    }
+  }, [product.id, apiProduct?.name, product.type, product.imageUrl]);
 
   // 브랜드 정보 가져오기
   const brandInfo = getBrandInfo(product.brand);
