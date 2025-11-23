@@ -41,7 +41,7 @@ apiClient.interceptors.response.use(
 );
 
 export interface CartItem {
-  id: number;
+  productId: number;   // ← 서버 응답과 일치
   productName: string;
   quantity: number;
   unitPrice: number;

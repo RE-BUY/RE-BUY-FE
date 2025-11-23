@@ -13,7 +13,40 @@ import basketIcon from '../assets/basket.svg';
 export default function DetailPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const productId = parseInt(searchParams.get('id') || '1');
+  
+  // productId 검증
+  const idParam = searchParams.get('id');
+  if (!idParam) {
+    console.error("❌ productId 없음 → API 호출 안 함");
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center">
+        <p className="text-gray-500">상품 ID가 없습니다.</p>
+        <button 
+          onClick={() => navigate('/')} 
+          className="mt-4 px-4 py-2 bg-main text-white rounded-lg"
+        >
+          홈으로 가기
+        </button>
+      </div>
+    );
+  }
+  
+  const productId = Number(idParam);
+  if (isNaN(productId) || productId <= 0) {
+    console.error("❌ 유효하지 않은 productId:", idParam);
+    return (
+      <div className="flex flex-col h-full bg-white items-center justify-center">
+        <p className="text-gray-500">유효하지 않은 상품 ID입니다.</p>
+        <button 
+          onClick={() => navigate('/')} 
+          className="mt-4 px-4 py-2 bg-main text-white rounded-lg"
+        >
+          홈으로 가기
+        </button>
+      </div>
+    );
+  }
+  
   const { setCartItems, cartItems, cartItemCount } = useCart();
   const [activeTab, setActiveTab] = useState<'info' | 'review' | 'inquiry'>('info');
   const [showCartMessage, setShowCartMessage] = useState(false);
@@ -78,6 +111,7 @@ useEffect(() => {
 
   // 브랜드 정보 가져오기
   const brandInfo = getBrandInfo(product.brand);
+  console.log('브랜드 정보 확인:', { brand: product.brand, brandInfo });
   
   // 추가 이미지에서 썸네일 제외 (p1_1.png 같은 썸네일은 제외하고 p1_2.png부터 표시)
   const thumbnailUrl = product.imageUrl;
@@ -278,6 +312,37 @@ useEffect(() => {
           <div className="px-4">
             {activeTab === 'info' && (
               <div className="space-y-6">
+                {/* 기업 정보 (디테일 사진 앞) */}
+                <div className="text-center mb-8">
+                  {brandInfo ? (
+                    <>
+                      <h2 className="text-[28px] font-extrabold mb-2">
+                        <span className="text-main">{brandInfo.brandNameEn[0]}</span>
+                        <span className="text-black">{brandInfo.brandNameEn.slice(1)}</span>
+                      </h2>
+                      <p className="text-base text-black mb-4">{brandInfo.brandName}</p>
+                      <div className="text-sm text-gray-600 leading-relaxed mb-6">
+                        {(brandInfo.descriptionEn || brandInfo.description).map((line, idx) => (
+                          <p key={idx}>{line}</p>
+                        ))}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <h2 className="text-[28px] font-extrabold mb-2">
+                        <span className="text-main">{product.brand?.[0] || 'R'}</span>
+                        <span className="text-black">{product.brand?.slice(1) || 'E:BUY'}</span>
+                      </h2>
+                      <p className="text-base text-black mb-4">{product.brand || 'RE:BUY'}</p>
+                      <div className="text-sm text-gray-600 leading-relaxed mb-6">
+                        <p>Founded by eco-conscious entrepreneurs</p>
+                        <p>Sustainable upcycling brand.</p>
+                      </div>
+                    </>
+                  )}
+                  <div className="border-t border-[#828282] w-[20px] mx-auto border-[0.6px]"></div>
+                </div>
+
                 {/* 추가 상품 이미지 (정보 탭에만 표시) */}
                 {additionalImages.length > 0 && (
                   <div className="space-y-4 mb-6">
@@ -299,8 +364,8 @@ useEffect(() => {
                 {/* 브랜드 정보 */}
                 {brandInfo && (
                   <>
-                    <div className="text-center">
-                      <h2 className="text-[36px] font-extrabold mt-[140px] mb-2">
+                    <div className="text-center mt-20">
+                      <h2 className="text-[28px] font-extrabold mb-4">
                         <span className="text-main">{brandInfo.brandNameEn[0]}</span>
                         <span className="text-black">{brandInfo.brandNameEn.slice(1)}</span>
                       </h2>

@@ -2,6 +2,7 @@ export interface BrandInfo {
   brandName: string; // 브랜드 한글명 (예: "프라이탁")
   brandNameEn: string; // 브랜드 영문명 (예: "FREITAG")
   description: string[]; // 브랜드 설명 (2줄)
+  descriptionEn?: string[]; // 브랜드 영어 설명 (선택적)
   materials: {
     name: string;
     label: string;
@@ -19,6 +20,10 @@ export const brandInfos: Record<string, BrandInfo> = {
     description: [
       '마커스 프라이탁과 다니엘 프라이탁이 만든',
       '스위스의 업사이클링 브랜드.',
+    ],
+    descriptionEn: [
+      'Founded by Markus Freitag and Daniel Freitag',
+      'Swiss upcycling brand.',
     ],
     materials: [
       {

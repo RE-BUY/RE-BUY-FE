@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { checkoutOrder } from '../services/orderService';
 import { removeFromCart, updateCartItem, getCart, clearCart } from '../services/cartService';
 import { getMyPageInfo } from '../services/myPageService';
+import { getProduct } from '../services/productService';
 import { products } from '../data/products';
 
 export default function ShoppingBasket() {
@@ -59,16 +60,32 @@ export default function ShoppingBasket() {
             try {
                 const cartData = await getCart();
                 // API 응답을 로컬 CartItem 형식으로 변환
-                const convertedItems = cartData.items.map(apiItem => {
-                    const product = products.find(p => p.id === apiItem.id);
-                    return {
-                        id: apiItem.id,
-                        name: apiItem.productName,
-                        price: apiItem.unitPrice,
-                        qty: apiItem.quantity,
-                        img: product?.image || '/images/products/p1.png'
-                    };
-                });
+                const convertedItems = await Promise.all(
+                    cartData.items.map(async (apiItem) => {
+                        const productId = apiItem.productId;
+                        try {
+                            // API에서 상품 정보 가져오기 (썸네일 이미지 포함)
+                            const productInfo = await getProduct(productId);
+                            return {
+                                id: productId,
+                                name: apiItem.productName,
+                                price: apiItem.unitPrice,
+                                qty: apiItem.quantity,
+                                img: productInfo.imageUrls?.[0] || productInfo.imageUrl
+                            };
+                        } catch (error) {
+                            // API 실패 시 로컬 products 배열에서 찾기
+                            const product = products.find(p => p.id === productId);
+                            return {
+                                id: productId,
+                                name: apiItem.productName,
+                                price: apiItem.unitPrice,
+                                qty: apiItem.quantity,
+                                img: product?.image || '/images/products/p1.png'
+                            };
+                        }
+                    })
+                );
                 setCartItems(convertedItems);
             } catch (error) {
                 console.error('장바구니 조회 실패:', error);
@@ -165,11 +182,11 @@ export default function ShoppingBasket() {
                             {cartItems.map((item, index) => (
                                 <li key={`${item.id}-${index}`} className="py-6 flex gap-4">
                                     {/* 이미지 */}
-                                    <div className="w-20 h-20 bg-sub1 rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
+                                    <div className="w-20 h-20 bg-white rounded-lg flex-shrink-0 overflow-hidden border border-gray-100">
                                         <img 
                                             src={item.img} 
                                             alt={item.name} 
-                                            className="w-full h-full object-cover mix-blend-multiply" 
+                                            className="w-full h-full object-cover" 
                                         />
                                     </div>
 
