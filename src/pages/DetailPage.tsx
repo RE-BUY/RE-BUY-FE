@@ -4,8 +4,10 @@ import { products } from '../data/products';
 import { getReviewsByProductId } from '../data/reviews';
 import { getBrandInfo } from '../data/brands';
 import { useCart } from '../contexts/CartContext';
-import { addToCart } from '../services/cartService';
+import { addToCart, clearCart } from '../services/cartService';
 import { getProduct, type Product as ApiProduct } from '../services/productService';
+import { checkoutOrder } from '../services/orderService';
+import { getMyPageInfo } from '../services/myPageService';
 import { getImageFullUrl } from '../utils/imageUtils';
 import earthIcon from '../assets/earth.svg';
 import basketIcon from '../assets/basket.svg';
@@ -193,21 +195,55 @@ useEffect(() => {
     }
   };
 
-  // 구매하기 - 장바구니에 상품이 있는지 확인하고 없으면 추가
-  const handlePurchase = () => {
-    const existingItem = cartItems.find(item => item.id === product.id);
-    if (!existingItem) {
-      // 장바구니에 없으면 추가
-      setCartItems([...cartItems, {
-        id: product.id,
-        name: product.type,
-        price: product.price,
-        qty: 1,
-        img: product.imageUrl || product.image
-      }]);
+  // 구매하기 - 바로 구매 완료
+  const handlePurchase = async () => {
+    try {
+      // 1. 장바구니에 상품 추가 (서버)
+      await addToCart(product.id, 1);
+
+      // 2. 보유 크레딧 조회
+      let availableCredit = 0;
+      try {
+        const myPageInfo = await getMyPageInfo();
+        availableCredit = myPageInfo.totalCredit || 0;
+      } catch (error) {
+        console.error('크레딧 조회 실패:', error);
+      }
+
+      // 3. 총 금액 계산 및 크레딧 사용량 계산
+      const totalAmount = product.price; // 단일 상품 가격
+      const creditToUse = Math.min(availableCredit, totalAmount);
+
+      // 4. 체크아웃 API 호출 (바로 구매)
+      const checkoutData = {
+        creditToUse: creditToUse,
+        receiverName: '홍길동', // TODO: 실제 입력값으로 교체
+        address: '서울시 강남구 테헤란로 123', // TODO: 실제 입력값으로 교체
+        contactPhone: '010-1234-5678', // TODO: 실제 입력값으로 교체
+      };
+      await checkoutOrder(checkoutData);
+
+      // 5. 구매 완료 메시지 먼저 표시
+      alert('구매가 완료되었습니다!');
+
+      // 6. 서버 장바구니 비우기
+      try {
+        await clearCart();
+      } catch (error) {
+        console.error('장바구니 비우기 실패:', error);
+      }
+
+      // 7. 로컬 장바구니 비우기
+      setCartItems([]);
+
+      // 8. 주문내역 페이지로 이동
+      setTimeout(() => {
+        navigate('/history');
+      }, 100);
+    } catch (error) {
+      console.error('바로 구매 실패:', error);
+      alert('상품 구매에 실패했습니다. 다시 시도해주세요.');
     }
-    // 장바구니 페이지로 이동
-    navigate('/shoppingBasket');
   };
 
   if (isLoading) {

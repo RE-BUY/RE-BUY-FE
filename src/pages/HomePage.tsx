@@ -4,10 +4,11 @@ import Layout from "../components/Layout";
 import TopNav from "../components/TopNav";
 import SearchBar from "../components/SearchBar";
 import { products } from "../data/products";
-import { getRecommendations, type Recommendation } from "../services/recommendationService";
+import { getRecommendations } from "../services/recommendationService";
 import { getMyPageInfo } from "../services/myPageService";
 import { getCurrentReport } from "../services/reportService";
 import { useAuth } from "../contexts/AuthContext";
+import { getProduct } from "../services/productService";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -19,20 +20,11 @@ export default function HomePage() {
   ];
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [aiInsight, setAiInsight] = useState<string>('');
   const [username, setUsername] = useState<string>('');
   const [waterSaved, setWaterSaved] = useState<number>(0);
   const [treeSaved, setTreeSaved] = useState<number>(0);
-  
-  // 추천 상품 (API에서 가져오기, 실패 시 기본값)
-  const recommendedProducts = recommendations.length > 0 
-    ? recommendations.map(rec => ({
-        id: rec.id,
-        image: products.find(p => p.id === rec.id)?.image || '/images/products/p1.png',
-        type: rec.productName,
-      }))
-    : products.slice(0, 3);
+  const [recommendedProducts, setRecommendedProducts] = useState<Array<{ id: number; image: string; type: string }>>([]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -51,11 +43,60 @@ export default function HomePage() {
     const fetchRecommendations = async () => {
       try {
         const data = await getRecommendations(5);
-        setRecommendations(data.recommendations);
+
+        console.log("🧩 추천 API 원본 데이터:", data);
+        console.log("🧩 추천 API 원본 데이터:", JSON.stringify(data, null, 2));
+        console.log("🧩 추천 리스트:", data.recommendations);
+
+        data.recommendations?.forEach((rec, idx) => {
+          console.log(`🔎 추천상품 ${idx} :`, rec);
+        });
+
         setAiInsight(data.aiInsight);
+
+        // 추천 상품의 이미지를 API에서 가져오기
+        if (data.recommendations && data.recommendations.length > 0) {
+          const productsWithImages = await Promise.all(
+            data.recommendations.map(async (rec) => {
+              try {
+                const productId = rec.productId || rec.id; // productId 우선, 없으면 id 사용
+                if (!productId) {
+                  throw new Error('productId가 없습니다');
+                }
+                const productInfo = await getProduct(productId);
+                return {
+                  id: rec.productId || rec.id || 0,
+                  image: productInfo.imageUrl,
+                  type: rec.productName,
+                };
+              } catch (error) {
+                console.error(`상품 ${rec.productId || rec.id} 정보 가져오기 실패:`, error);
+                // 실패 시 기본 이미지 사용
+                return {
+                  id: rec.productId || rec.id || 0,
+                  image: '/images/products/p1.png',
+                  type: rec.productName,
+                };
+              }
+            })
+          );
+          setRecommendedProducts(productsWithImages);
+        } else {
+          // 추천 상품이 없으면 기본 상품 사용
+          setRecommendedProducts(products.slice(0, 3).map(p => ({
+            id: p.id,
+            image: p.image,
+            type: p.type,
+          })));
+        }
       } catch (error) {
         console.error('AI 추천 상품 로드 실패:', error);
         // 에러 발생 시 기본 상품 사용
+        setRecommendedProducts(products.slice(0, 3).map(p => ({
+          id: p.id,
+          image: p.image,
+          type: p.type,
+        })));
       }
     };
 
@@ -198,9 +239,9 @@ export default function HomePage() {
               
             {/* 가로 스크롤 카드 */}
             <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory">
-              {recommendedProducts.map((product) => (
+              {recommendedProducts.map((product, index) => (
                 <div
-                  key={product.id}
+                  key={product.id || `product-${index}`}
                   onClick={() => navigate(`/detail?id=${product.id}`)}
                   className="snap-start flex-shrink-0 w-32 h-32 border rounded-lg shadow-sm flex items-center justify-center overflow-hidden bg-white cursor-pointer hover:shadow-md transition-shadow"
                 >

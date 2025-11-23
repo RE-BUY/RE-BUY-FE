@@ -73,13 +73,13 @@ export default function MyPage() {
     { name: '리뷰', icon: '/images/products/review.png' },
     { name: '문의', icon: '/images/products/chat.png' },
     { name: '플로깅 예약', icon: '/images/products/calendar.png' },
-    { name: '포인트', icon: '/images/products/coin.png' },
+    { name: '리포트', icon: '/images/products/coin.png' },
   ];
 
   const handleMenuClick = (menuName: string) => {
     switch(menuName) {
       case '구매내역': navigate('/history'); break;
-      case '포인트': navigate('/point'); break;
+      case '리포트': navigate('/point'); break;
       case '플로깅 예약': navigate('/my-plogging'); break;
       case '리뷰': navigate('/review'); break;
       case '문의': navigate('/inquiry'); break;

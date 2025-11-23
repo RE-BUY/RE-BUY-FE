@@ -142,7 +142,12 @@ export const getActivity = async (activityId: number): Promise<Activity> => {
  * @returns Promise<ActivitiesResponse>
  */
 export const getMyApplications = async (): Promise<ActivitiesResponse> => {
+  console.log('📡 GET /api/v1/activities/my-applications 호출');
   const response = await apiClient.get<ActivitiesResponse>('/api/v1/activities/my-applications');
+  console.log('📥 응답 원본:', response);
+  console.log('📥 응답 데이터:', response.data);
+  console.log('📥 응답 데이터 타입:', typeof response.data);
+  console.log('📥 response.data.items:', response.data.items);
   return response.data;
 };
 
