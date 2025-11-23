@@ -92,15 +92,9 @@ export default function PointPage() {
         <TopNav />
 
         {/* 포인트 영역 */}
-        <div className="flex-1 overflow-y-auto px-5 pt-6 pb-32">
+        <div className="flex-1 overflow-y-auto px-5 pt-6 pb-12">
 
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">녹색생활 포인트</h2>
-          <div className="bg-sub1/30 rounded-xl p-4 flex justify-between items-center mb-6">
-            <span className="font-bold text-gray-800">총 포인트</span>
-            <span className="text-green-600 font-bold text-lg">
-              {totalCredit.toLocaleString()}p
-            </span>
-          </div>
+          <h2 className="text-xl font-bold text-main mb-4">녹색생활 리포트</h2>
 
           {/* 소비 리포트 */}
           {isLoadingReport ? (
@@ -244,8 +238,8 @@ export default function PointPage() {
           {/* 설명 */}
           <div className="w-full bg-[#8FAB95] rounded-3xl p-6 text-center shadow-sm mt-6">
             <p className="text-white font-medium text-sm sm:text-base leading-relaxed">
-              녹색생활(Green Life)은 환경을 보호하고 에너지를 절약하며,<br />
-              지속 가능한 삶을 실천하는 생활 방식입니다.
+              녹색생활(Green Life)은 환경을 보호하고<br />에너지를 절약하며,
+              지속 가능한 삶을<br />실천하는 생활 방식입니다.
             </p>
           </div>
 

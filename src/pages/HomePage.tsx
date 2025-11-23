@@ -111,20 +111,20 @@ export default function HomePage() {
             {/* WATER */}
             <div className="px-3 pt-3 pb-2 h-[122px] border rounded-xl shadow-sm bg-[#D5E4D8] text-[#4F7457]">
               <p className="text-sm font-semibold">WATER</p>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 <img src="/images/products/water_icon.png" className="w-12 h-12 -mt-4" alt="물 아이콘" />
                 <span className="text-[64px] font-extrabold font-baloo">{waterSaved}</span>
-                <span className="text-[16px] font-extrabold font-baloo mt-6">L</span>
+                <span className="text-[16px] font-extrabold font-baloo mt-6 -ml-1">L</span>
               </div>
             </div>
 
             {/* TREE */}
             <div className="px-3 pt-3 pb-2 h-[122px] border rounded-xl shadow-sm bg-[#D5E4D8] text-[#4F7457]">
               <p className="text-sm font-semibold">TREE</p>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-1 mt-1">
                 <img src="/images/products/tree_icon.png" className="w-12 h-12 -mt-4" alt="나무 아이콘" />
                 <span className="text-[64px] font-extrabold font-baloo">{treeSaved}</span>
-                <span className="text-[16px] font-extrabold font-baloo mt-6">T</span>
+                <span className="text-[16px] font-extrabold font-baloo mt-6 -ml-1">T</span>
               </div>
             </div>
           </div>

@@ -106,18 +106,7 @@ export interface CheckoutRequest {
 
 export interface CheckoutResponse {
   orderId: number;
-  status: 'PENDING' | 'COMPLETED' | 'CANCELLED';
-  totalAmount: number;
-  amountPaid: number;
-  creditUsed: number;
-  creditEarned: number;
-  environmentScoreGain: number;
-  paidAt: string;
-  createdAt: string;
-  receiverName: string;
-  address: string;
-  contactPhone: string;
-  items: OrderDetailItem[];
+  message?: string;
 }
 
 /**
@@ -183,8 +172,8 @@ export const updateOrderStatus = async (
 };
 
 /**
- * 장바구니 전체 주문 (체크아웃)
- * @param checkoutData 체크아웃 정보 (creditToUse, receiverName, address, contactPhone)
+ * 주문 체크아웃 (장바구니 전체 주문하기)
+ * @param checkoutData 체크아웃 정보
  * @returns Promise<CheckoutResponse>
  */
 export const checkoutOrder = async (
