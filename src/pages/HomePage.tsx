@@ -6,10 +6,12 @@ import SearchBar from "../components/SearchBar";
 import { products } from "../data/products";
 import { getRecommendations, type Recommendation } from "../services/recommendationService";
 import { getMyPageInfo } from "../services/myPageService";
-import { getCurrentReport } from "../services/reportService"; 
+import { getCurrentReport } from "../services/reportService";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { loading: authLoading } = useAuth();
   const partners = [
     { id: 1, img: '/images/products/enter1.png' },
     { id: 2, img: '/images/products/enter2.png' },
@@ -41,6 +43,11 @@ export default function HomePage() {
   }, [partners.length]);
 
   useEffect(() => {
+    // AuthContext 로딩이 끝날 때까지 기다림
+    if (authLoading) {
+      return;
+    }
+
     const fetchRecommendations = async () => {
       try {
         const data = await getRecommendations(5);
@@ -76,7 +83,18 @@ export default function HomePage() {
 
     fetchRecommendations();
     fetchUserInfo();
-  }, []);
+  }, [authLoading]);
+
+  // AuthContext 로딩 중일 때는 로딩 화면 표시
+  if (authLoading) {
+    return (
+      <Layout>
+        <div className="flex flex-col h-full items-center justify-center">
+          <p className="text-gray-500">로딩 중...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

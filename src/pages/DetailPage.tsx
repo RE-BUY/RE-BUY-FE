@@ -6,6 +6,7 @@ import { getBrandInfo } from '../data/brands';
 import { useCart } from '../contexts/CartContext';
 import { addToCart } from '../services/cartService';
 import { getProduct, type Product as ApiProduct } from '../services/productService';
+import { getImageFullUrl } from '../utils/imageUtils';
 import earthIcon from '../assets/earth.svg';
 import basketIcon from '../assets/basket.svg';
 
@@ -271,7 +272,7 @@ export default function DetailPage() {
                         <div className="w-full aspect-square mb-2 bg-transparent overflow-hidden">
                           {material.image && (
                             <img
-                              src={material.image}
+                              src={getImageFullUrl(material.image)}
                               alt={material.name}
                               className="w-full h-full object-cover rounded-lg"
                             />

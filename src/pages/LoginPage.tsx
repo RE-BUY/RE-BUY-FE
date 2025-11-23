@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { login } from '../services/authService';
+import { useAuth } from '../contexts/AuthContext';
 import earthIconImage from '../assets/earth.svg';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { setIsLoggedIn } = useAuth();
 
   const [loginData, setLoginData] = useState({
     id: '',
@@ -14,6 +17,8 @@ const LoginPage: React.FC = () => {
     id: '',
     password: '',
   });
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -30,7 +35,7 @@ const LoginPage: React.FC = () => {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validation 체크
@@ -54,9 +59,36 @@ const LoginPage: React.FC = () => {
       return;
     }
 
-    console.log('로그인 시도:', loginData);
-    
-    navigate('/home'); 
+    setIsLoading(true);
+
+    try {
+      // login API 호출
+      const response = await login(loginData.id, loginData.password);
+      
+      // 토큰 저장
+      localStorage.setItem('token', response.accessToken);
+      console.log('토큰 저장 완료:', response.accessToken);
+      
+      // 로그인 상태 업데이트
+      setIsLoggedIn(true);
+      
+      // 홈으로 이동
+      navigate('/home');
+    } catch (error: any) {
+      console.error('로그인 실패:', error);
+      
+      // 에러 메시지 처리
+      if (error.response?.status === 401) {
+        setErrors({
+          id: '',
+          password: '아이디 또는 비밀번호가 올바르지 않습니다.',
+        });
+      } else {
+        alert('로그인에 실패했습니다. 다시 시도해주세요.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -111,9 +143,12 @@ const LoginPage: React.FC = () => {
 
           <button
             type="submit"
-            className="w-full mt-[22px] px-12 py-3 bg-sub2 text-white rounded-xl font-semibold"
+            disabled={isLoading}
+            className={`w-full mt-[22px] px-12 py-3 bg-sub2 text-white rounded-xl font-semibold ${
+              isLoading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            로그인
+            {isLoading ? '로그인 중...' : '로그인'}
           </button>
         </form>
 

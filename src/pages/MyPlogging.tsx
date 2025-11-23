@@ -12,16 +12,28 @@ export default function MyPloggingPage() {
     const fetchAppliedActivities = async () => {
       try {
         const activitiesData = await getActivities();
+        console.log('=== 마이플로깅 디버깅 ===');
+        console.log('전체 활동 데이터:', activitiesData);
+        console.log('활동 개수:', activitiesData.items?.length || 0);
+        
         // 이미 신청한 활동 ID만 추출
         const appliedIds: number[] = [];
         if (activitiesData.items) {
           activitiesData.items.forEach(activity => {
+            console.log(`활동 ID: ${activity.id}, isApplied: ${activity.isApplied}, participationId: ${activity.participationId}`);
             // isApplied 필드가 true이거나 participationId가 있으면 신청한 활동
             if (activity.isApplied || activity.participationId) {
               appliedIds.push(activity.id);
+              console.log(`  → 신청한 활동으로 추가됨: ${activity.id}`);
             }
           });
         }
+        
+        console.log('신청한 활동 ID 목록:', appliedIds);
+        console.log('로컬 ploggingItems ID:', ploggingItems.map(item => item.id));
+        console.log('매칭되는 항목:', ploggingItems.filter(item => appliedIds.includes(item.id)).map(item => item.id));
+        console.log('========================');
+        
         setAppliedActivities(appliedIds);
       } catch (error) {
         console.error('활동 목록 조회 실패:', error);

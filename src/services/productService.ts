@@ -71,6 +71,21 @@ export interface GetProductsParams {
 }
 
 /**
+ * 이미지 경로를 완전한 URL로 변환
+ * @param imagePath 백엔드에서 받은 이미지 경로 (예: /images/products/p1.png)
+ * @returns 완전한 이미지 URL (예: http://192.168.45.170:8080/images/products/p1.png)
+ */
+const getImageFullUrl = (imagePath: string | undefined): string => {
+  if (!imagePath) return '';
+  // 이미 완전한 URL인 경우 (http:// 또는 https://로 시작)
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  // 경로만 있는 경우 BASE_URL과 조합
+  return `${BASE_URL}${imagePath}`;
+};
+
+/**
  * 상품 목록 조회
  * @param params 조회 파라미터 (category, q, page, size)
  * @returns Promise<ProductsResponse>
@@ -79,7 +94,17 @@ export const getProducts = async (params?: GetProductsParams): Promise<ProductsR
   const response = await apiClient.get<ProductsResponse>('/api/v1/products', {
     params,
   });
-  return response.data;
+  
+  // 각 상품의 imageUrl을 완전한 URL로 변환
+  const productsWithFullImageUrl = response.data.items.map(product => ({
+    ...product,
+    imageUrl: getImageFullUrl(product.imageUrl),
+  }));
+  
+  return {
+    ...response.data,
+    items: productsWithFullImageUrl,
+  };
 };
 
 /**
@@ -89,6 +114,11 @@ export const getProducts = async (params?: GetProductsParams): Promise<ProductsR
  */
 export const getProduct = async (id: number): Promise<Product> => {
   const response = await apiClient.get<Product>(`/api/v1/products/${id}`);
-  return response.data;
+  
+  // imageUrl을 완전한 URL로 변환
+  return {
+    ...response.data,
+    imageUrl: getImageFullUrl(response.data.imageUrl),
+  };
 };
 
