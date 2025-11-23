@@ -22,33 +22,33 @@ import ReviewPage from './pages/ReviewPage'      // 새로 추가
 function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <BrowserRouter>
-          <div className="mobile-frame relative">
-            <div className="h-full">
-              <Routes>
-                <Route path="/" element={<Navigate to="/main" replace />} />
-                <Route path="/main" element={<MainPage />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/join1" element={<Join1Page />} />
-                <Route path="/join2" element={<Join2Page />} />
-                <Route path="/search" element={<SearchPage />} />
-                <Route path="/detail" element={<DetailPage />} />
-                <Route path="/shoppingBasket" element={<ShoppingBasketPage />} />
-                <Route path="/plogging" element={<PloggingPage />} />
-                <Route path="/my" element={<MyPage />} />
-                <Route path="/point" element={<PointPage />} />
-                <Route path="/list" element={<ListPage />} />
-                <Route path="/history" element={<PurchaseHistoryPage/>} />
-                <Route path="/my-plogging" element={<MyPloggingPage/>} />
-                <Route path="/inquiry" element={<InquiryPage />} />  {/* 문의 페이지 */}
-                <Route path="/review" element={<ReviewPage />} />    {/* 리뷰 페이지 */}
-              </Routes>
-            </div>
-          </div>
-        </BrowserRouter>
-      </CartProvider>
+    <CartProvider>
+    <BrowserRouter>
+      <div className="mobile-frame relative">
+        <div className="h-full">
+          <Routes>
+            <Route path="/" element={<Navigate to="/main" replace />} />
+            <Route path="/main" element={<MainPage />} />
+            <Route path="/home" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/join1" element={<Join1Page />} />
+            <Route path="/join2" element={<Join2Page />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/detail" element={<DetailPage />} />
+            <Route path="/shoppingBasket" element={<ShoppingBasketPage />} />
+            <Route path="/plogging" element={<PloggingPage />} />
+            <Route path="/my" element={<MyPage />} />
+            <Route path="/point" element={<PointPage />} />
+            <Route path="/list" element={<ListPage />} />
+            <Route path="/history" element={<PurchaseHistoryPage/>} />
+            <Route path="/my-plogging" element={<MyPloggingPage/>} />
+            <Route path="/inquiry" element={<InquiryPage />} />  {/* 문의 페이지 */}
+            <Route path="/review" element={<ReviewPage />} />    {/* 리뷰 페이지 */}
+          </Routes>
+        </div>
+      </div>
+    </BrowserRouter>
+    </CartProvider>
     </AuthProvider>
   )
 }
