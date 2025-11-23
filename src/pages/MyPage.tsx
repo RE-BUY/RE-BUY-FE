@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from "../components/Layout";
 import BottomNav from "../components/BottomNav";
 import TopNav from "../components/TopNav";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { getMyPageInfo, type MyPageResponse } from '../services/myPageService';
+import { getCurrentReport } from '../services/reportService';
 
 interface Product {
   id: number;
@@ -22,11 +24,41 @@ export default function MyPage() {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const [reviewStatus, setReviewStatus] = useState<'bad' | 'good' | null>(null);
+  const [myPageData, setMyPageData] = useState<MyPageResponse | null>(null);
+  const [waterSaved, setWaterSaved] = useState<number>(0);
+  const [treeSaved, setTreeSaved] = useState<number>(0);
 
+  useEffect(() => {
+    const fetchMyPageData = async () => {
+      try {
+        // 사용자 정보와 리포트 데이터를 병렬로 가져오기
+        const [userData, report] = await Promise.all([
+          getMyPageInfo(),
+          getCurrentReport().catch(() => null) // 리포트 실패 시 null
+        ]);
+        
+        setMyPageData(userData);
+        
+        // 물 절약량: 리포트의 environmentalImpact.waterSaved 사용
+        const waterValue = report?.environmentalImpact?.waterSaved ?? 0;
+        setWaterSaved(waterValue);
+        
+        // 나무: MyPage의 pineTreeCount 사용
+        setTreeSaved(userData.pineTreeCount || 0);
+      } catch (error) {
+        console.error('마이페이지 데이터 로드 실패:', error);
+        // 에러 발생 시 기본값 사용
+      }
+    };
+
+    fetchMyPageData();
+  }, []);
+
+  // API 데이터가 있으면 사용, 없으면 기본값
   const userInfo: UserInfo = {
-    name: 'Y',
-    waterSaved: 12,
-    treesSaved: 5,
+    name: myPageData?.username || 'Y',
+    waterSaved: waterSaved,
+    treesSaved: treeSaved,
   };
 
   const recentItems: Product[] = [

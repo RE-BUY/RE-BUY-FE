@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import earthIconImage from '../assets/earth.svg';
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const { setIsLoggedIn } = useAuth();
 
   const [loginData, setLoginData] = useState({
     id: '',
@@ -58,8 +56,6 @@ const LoginPage: React.FC = () => {
 
     console.log('로그인 시도:', loginData);
     
-    // 로그인 상태 업데이트
-    setIsLoggedIn(true);
     navigate('/home'); 
   };
 

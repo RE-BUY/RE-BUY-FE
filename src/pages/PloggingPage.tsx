@@ -1,14 +1,51 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from "../components/Layout";
 import TopNav from "../components/TopNav";
 import { useNavigate } from 'react-router-dom';
 import { ploggingItems } from '../data/products';
+import { applyActivity, getActivities } from '../services/activityService';
 
 export default function PloggingPage() {
   const navigate = useNavigate();
 
   const [selections, setSelections] = useState<Record<number, boolean>>({});
   const [isAgreed, setIsAgreed] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [appliedActivities, setAppliedActivities] = useState<Set<number>>(new Set());
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 페이지 로드 시 이미 신청한 활동 목록 가져오기
+  useEffect(() => {
+    const fetchAppliedActivities = async () => {
+      try {
+        const activitiesData = await getActivities();
+        
+        // 이미 신청한 ID 모음
+        const appliedIds = new Set<number>();
+        const initialSelections: Record<number, boolean> = {};
+
+        if (activitiesData.items) {
+          activitiesData.items.forEach(activity => {
+            // isApplied 필드가 true이거나 participationId가 있으면 신청한 활동
+            if (activity.isApplied || activity.participationId) {
+              appliedIds.add(activity.id);
+              initialSelections[activity.id] = true; // 자동으로 선택 상태로 설정
+            }
+          });
+        }
+
+        setAppliedActivities(appliedIds);
+        setSelections(initialSelections); // 기본 선택 상태 반영
+      } catch (error) {
+        console.error('활동 목록 조회 실패:', error);
+        // 에러 발생 시 빈 Set 유지
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAppliedActivities();
+  }, []);
 
   const handleSelect = (id: number) => {
     setSelections(prev => ({ ...prev, [id]: !prev[id] }));
@@ -17,11 +54,67 @@ export default function PloggingPage() {
   const hasAnySelection = Object.values(selections).some(selected => selected);
   const canSubmit = hasAnySelection && isAgreed;
 
-  const handleSubmit = () => {
-    // 로컬스토리지에 저장
-    localStorage.setItem('myPloggingSelections', JSON.stringify(selections));
-    alert('예약이 저장되었습니다!');
-    navigate('/my'); // MyPage로 이동
+  const handleSubmit = async () => {
+    if (!canSubmit || isSubmitting) return;
+
+    setIsSubmitting(true);
+
+    try {
+      // 선택된 모든 활동에 대해 참여 신청
+      const selectedIds = Object.keys(selections)
+        .map(Number)
+        .filter(id => selections[id]);
+
+      // 모든 활동에 대해 병렬로 참여 신청
+      const results = await Promise.allSettled(
+        selectedIds.map(activityId => applyActivity(activityId))
+      );
+
+      // 결과 처리: 성공한 것과 실패한 것 분리
+      const successfulIds: number[] = [];
+      const alreadyAppliedIds: number[] = [];
+
+      results.forEach((result, index) => {
+        const activityId = selectedIds[index];
+        if (result.status === 'fulfilled') {
+          successfulIds.push(activityId);
+        } else {
+          // 에러 메시지 확인
+          const errorMessage = result.reason?.response?.data?.message || result.reason?.message || '';
+          if (errorMessage.includes('이미 신청한 활동')) {
+            alreadyAppliedIds.push(activityId);
+            setAppliedActivities(prev => new Set([...prev, activityId]));
+          }
+        }
+      });
+
+      // 이미 신청한 활동이 있으면 해당 활동들을 신청완료 상태로 표시
+      if (alreadyAppliedIds.length > 0) {
+        // 선택 상태에서 제거하고 신청완료 상태로 변경
+        setSelections(prev => {
+          const newSelections = { ...prev };
+          alreadyAppliedIds.forEach(id => {
+            delete newSelections[id];
+          });
+          return newSelections;
+        });
+      }
+
+      // 성공한 활동이 있으면 로컬스토리지에 저장
+      if (successfulIds.length > 0) {
+        localStorage.setItem('myPloggingSelections', JSON.stringify(selections));
+        alert('예약이 저장되었습니다!');
+        navigate('/my');
+      } else if (alreadyAppliedIds.length > 0) {
+        // 모든 활동이 이미 신청된 경우
+        alert('선택하신 활동은 이미 신청 완료되었습니다.');
+      }
+    } catch (error) {
+      console.error('예약 신청 실패:', error);
+      alert('예약 신청에 실패했습니다. 다시 시도해주세요.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -33,9 +126,16 @@ export default function PloggingPage() {
             예약 가능한 플로깅
           </h2>
 
-          {ploggingItems.map(item => {
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8 text-gray-500">
+              <p>활동 목록을 불러오는 중...</p>
+            </div>
+          ) : (
+            ploggingItems.map(item => {
             // 각 항목이 선택되었는지 확인
             const isSelected = selections[item.id] || false;
+            // 이미 신청한 활동인지 확인
+            const isApplied = appliedActivities.has(item.id);
             // 선택된 경우 참여 인원 1, 아니면 0 (실제로는 서버에서 가져와야 하지만 일단 선택 여부로 표시)
             const currentCount = isSelected ? 1 : 0;
             return (
@@ -46,18 +146,22 @@ export default function PloggingPage() {
                 <p className="mb-2"><span className="font-bold">모집인원:</span> {currentCount}/{item.capacity}</p>
 
                 <button
-                  onClick={() => handleSelect(item.id)}
-                  className={`w-full py-3 rounded-lg font-medium shadow-sm transition-all
-                    ${selections[item.id]
+                  onClick={() => !isApplied && handleSelect(item.id)}
+                  disabled={isApplied}
+                  className={`w-full py-3 rounded-lg font-medium shadow-sm transition-all ${
+                    isApplied
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : selections[item.id]
                       ? 'bg-main text-white ring-2 ring-main'
                       : 'bg-sub1 text-gray-700 hover:bg-sub2 hover:text-white'
-                    }`}
+                  }`}
                 >
-                  선택
+                  {isApplied ? '신청완료' : '선택'}
                 </button>
               </div>
             );
-          })}
+          })
+          )}
 
           {/* 선택하신 플로깅 */}
           {hasAnySelection && (
@@ -101,14 +205,14 @@ export default function PloggingPage() {
 
           <button
             onClick={handleSubmit}
-            disabled={!canSubmit}
+            disabled={!canSubmit || isSubmitting}
             className={`w-full py-3 rounded-xl text-lg font-bold shadow-lg transition-colors mt-4 ${
-              canSubmit
+              canSubmit && !isSubmitting
                 ? 'bg-main text-white hover:bg-[#3d5a44] cursor-pointer'
                 : 'bg-sub1 text-gray-700 cursor-not-allowed'
             }`}
           >
-            예약하기
+            {isSubmitting ? '예약 중...' : '예약하기'}
           </button>
         </div>
       </div>
