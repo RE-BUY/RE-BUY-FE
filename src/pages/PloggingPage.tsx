@@ -7,7 +7,7 @@ import { applyActivity, getActivities } from '../services/activityService';
 
 export default function PloggingPage() {
   const navigate = useNavigate();
-
+ 
   const [selections, setSelections] = useState<Record<number, boolean>>({});
   const [isAgreed, setIsAgreed] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -19,6 +19,9 @@ export default function PloggingPage() {
     const fetchAppliedActivities = async () => {
       try {
         const activitiesData = await getActivities();
+        console.log('=== 플로깅 페이지 디버깅 ===');
+        console.log('전체 활동 데이터:', activitiesData);
+        console.log('활동 개수:', activitiesData.items?.length || 0);
         
         // 이미 신청한 ID 모음
         const appliedIds = new Set<number>();
@@ -26,14 +29,20 @@ export default function PloggingPage() {
 
         if (activitiesData.items) {
           activitiesData.items.forEach(activity => {
+            console.log(`활동 ID: ${activity.id}, isApplied: ${activity.isApplied}, participationId: ${activity.participationId}`);
             // isApplied 필드가 true이거나 participationId가 있으면 신청한 활동
             if (activity.isApplied || activity.participationId) {
               appliedIds.add(activity.id);
-              initialSelections[activity.id] = true; // 자동으로 선택 상태로 설정
+              console.log(`  → 신청한 활동으로 추가됨: ${activity.id}`);
+              // 이미 신청한 활동은 선택 상태에 포함하지 않음 (마이플로깅에만 표시)
             }
           });
         }
 
+        console.log('신청한 활동 ID Set:', Array.from(appliedIds));
+        console.log('로컬 ploggingItems ID:', ploggingItems.map(item => item.id));
+        console.log('==========================');
+        
         setAppliedActivities(appliedIds);
         setSelections(initialSelections); // 기본 선택 상태 반영
       } catch (error) {
@@ -48,6 +57,10 @@ export default function PloggingPage() {
   }, []);
 
   const handleSelect = (id: number) => {
+    // 이미 신청한 활동은 선택할 수 없음
+    if (appliedActivities.has(id)) {
+      return;
+    }
     setSelections(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
@@ -60,10 +73,10 @@ export default function PloggingPage() {
     setIsSubmitting(true);
 
     try {
-      // 선택된 모든 활동에 대해 참여 신청
+      // 선택된 모든 활동에 대해 참여 신청 (이미 신청한 활동은 제외)
       const selectedIds = Object.keys(selections)
         .map(Number)
-        .filter(id => selections[id]);
+        .filter(id => selections[id] && !appliedActivities.has(id));
 
       // 모든 활동에 대해 병렬로 참여 신청
       const results = await Promise.allSettled(
@@ -74,19 +87,30 @@ export default function PloggingPage() {
       const successfulIds: number[] = [];
       const alreadyAppliedIds: number[] = [];
 
+      console.log('=== 예약 신청 결과 디버깅 ===');
+      console.log('선택된 활동 ID:', selectedIds);
+      console.log('예약 신청 결과:', results);
+
       results.forEach((result, index) => {
         const activityId = selectedIds[index];
         if (result.status === 'fulfilled') {
           successfulIds.push(activityId);
+          console.log(`활동 ${activityId}: 예약 성공`);
         } else {
           // 에러 메시지 확인
           const errorMessage = result.reason?.response?.data?.message || result.reason?.message || '';
+          console.log(`활동 ${activityId}: 예약 실패 -`, errorMessage);
           if (errorMessage.includes('이미 신청한 활동')) {
             alreadyAppliedIds.push(activityId);
             setAppliedActivities(prev => new Set([...prev, activityId]));
+            console.log(`활동 ${activityId}: 이미 신청한 활동으로 처리`);
           }
         }
       });
+
+      console.log('성공한 활동:', successfulIds);
+      console.log('이미 신청한 활동:', alreadyAppliedIds);
+      console.log('==========================');
 
       // 이미 신청한 활동이 있으면 해당 활동들을 신청완료 상태로 표시
       if (alreadyAppliedIds.length > 0) {
@@ -169,7 +193,7 @@ export default function PloggingPage() {
               <h3 className="text-lg font-bold mb-3">선택하신 플로깅</h3>
               <div className="space-y-2">
                 {ploggingItems
-                  .filter(item => selections[item.id])
+                  .filter(item => selections[item.id] && !appliedActivities.has(item.id)) // 이미 신청한 활동은 제외
                   .map(item => (
                     <div key={item.id} className="p-3 bg-gray-100 rounded-lg">
                       <p className="font-semibold">{item.place}</p>

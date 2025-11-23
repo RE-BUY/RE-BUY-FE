@@ -130,14 +130,6 @@ export default function PointPage() {
                 </div>
               </div>
 
-              {/* AI 분석 */}
-              {reportData.aiAnalysis && (
-                <div className="bg-white rounded-lg p-4 mb-4">
-                  <h4 className="font-bold text-gray-800 mb-3">AI 분석</h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">{reportData.aiAnalysis}</p>
-                </div>
-              )}
-
               {/* 성취 */}
               {reportData.achievements && reportData.achievements.length > 0 && (
                 <div className="bg-white rounded-lg p-4 mb-4">

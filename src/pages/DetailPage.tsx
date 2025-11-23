@@ -6,6 +6,7 @@ import { getBrandInfo } from '../data/brands';
 import { useCart } from '../contexts/CartContext';
 import { addToCart } from '../services/cartService';
 import { getProduct, type Product as ApiProduct } from '../services/productService';
+import { getImageFullUrl } from '../utils/imageUtils';
 import earthIcon from '../assets/earth.svg';
 import basketIcon from '../assets/basket.svg';
 
@@ -26,23 +27,34 @@ export default function DetailPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   // API에서 상품 상세 정보 가져오기
-  useEffect(() => {
-    const fetchProduct = async () => {
-      setIsLoading(true);
-      try {
-        const productData = await getProduct(productId);
-        setApiProduct(productData);
-      } catch (error) {
-        console.error('상품 상세 조회 실패:', error);
-        // 에러 발생 시 로컬 데이터 사용
-        setApiProduct(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    fetchProduct();
-  }, [productId]);
+// API에서 상품 상세 정보 가져오기
+useEffect(() => {
+
+  console.log("🔍 DetailPage: URL에서 받은 productId =", productId);
+
+  const fetchProduct = async () => {
+    console.log("📡 getProduct() 호출 시작:", productId);
+
+    setIsLoading(true);
+    try {
+      const productData = await getProduct(productId);
+      console.log("✅ getProduct() 성공:", productData);
+      console.log("📎 추가 이미지 raw:", productData.imageUrls);
+      console.log("📎 변환된 전체 이미지 URL:", productData.imageUrls?.map(url => getImageFullUrl(url)));
+
+      setApiProduct(productData);
+    } catch (error) {
+      console.error("❌ getProduct() 실패:", error);
+      setApiProduct(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  fetchProduct();
+}, [productId]);
+
+
 
   // API 상품 또는 로컬 상품 사용
   const localProduct = products.find(p => p.id === productId) || products[0];
@@ -51,12 +63,38 @@ export default function DetailPage() {
     brand: apiProduct.manufacturer || apiProduct.name,
     type: apiProduct.name,
     price: apiProduct.price,
-    image: apiProduct.imageUrl,
+    // 🔥 무조건 전체 URL로 변환해야 함
+    imageUrl: getImageFullUrl(apiProduct.imageUrl),
+    image: getImageFullUrl(apiProduct.imageUrl),
     category: apiProduct.category,
-  } : localProduct;
+    model: undefined as string | undefined, // API 상품은 model 없음
+    additionalImages: apiProduct.imageUrls?.map(url => getImageFullUrl(url)) || [], // 백엔드에서 받은 추가 이미지 배열도 전체 URL로 변환
+  } : {
+    ...localProduct,
+    imageUrl: localProduct.image,
+    image: localProduct.image,
+    additionalImages: [] as string[], // 로컬 상품은 추가 이미지 없음
+  };
 
   // 브랜드 정보 가져오기
   const brandInfo = getBrandInfo(product.brand);
+  
+  // 추가 이미지에서 썸네일 제외 (p1_1.png 같은 썸네일은 제외하고 p1_2.png부터 표시)
+  const thumbnailUrl = product.imageUrl;
+  const additionalImages = product.additionalImages.filter(img => {
+    // 썸네일과 같은 이미지는 제외
+    if (img === thumbnailUrl) {
+      return false;
+    }
+    // 파일명으로도 비교 (예: p1_1.png는 제외, p1_2.png부터 포함)
+    const thumbnailFileName = thumbnailUrl.split('/').pop() || '';
+    const imgFileName = img.split('/').pop() || '';
+    // 같은 파일명이면 제외
+    if (thumbnailFileName === imgFileName) {
+      return false;
+    }
+    return true;
+  });
   
   // 상품별 후기 가져오기
   const productReviews = getReviewsByProductId(product.id);
@@ -108,7 +146,7 @@ export default function DetailPage() {
           name: product.type,
           price: product.price,
           qty: 1,
-          img: product.image
+          img: product.imageUrl || product.image
         }]);
       }
       
@@ -131,19 +169,12 @@ export default function DetailPage() {
         name: product.type,
         price: product.price,
         qty: 1,
-        img: product.image
+        img: product.imageUrl || product.image
       }]);
     }
     // 장바구니 페이지로 이동
     navigate('/shoppingBasket');
   };
-
-  // 추가 상품 이미지들 (실제로는 상품별로 다를 수 있음)
-  const additionalImages = [
-    product.image,
-    product.image,
-    product.image,
-  ];
 
   if (isLoading) {
     return (
@@ -187,7 +218,7 @@ export default function DetailPage() {
           {/* 메인 상품 이미지 */}
           <div className="w-full">
             <img 
-              src={product.image} 
+              src={product.imageUrl} 
               alt={product.type}
               className="w-full h-auto object-cover"
               onError={(e) => {
@@ -207,7 +238,7 @@ export default function DetailPage() {
               {product.price.toLocaleString()}원
             </p>
 
-            {/* 탭 */}
+            {/* 탭 (가격 바로 아래) */}
             <div className="flex gap-2 mb-4">
               <button
                 onClick={() => setActiveTab('info')}
@@ -245,59 +276,65 @@ export default function DetailPage() {
 
           {/* 탭 컨텐츠 */}
           <div className="px-4">
-            {activeTab === 'info' && brandInfo && (
+            {activeTab === 'info' && (
               <div className="space-y-6">
-                {/* 브랜드 정보 */}
-                <div className="text-center">
-                  <h2 className="text-[36px] font-extrabold mt-[140px] mb-2">
-                    <span className="text-main">{brandInfo.brandNameEn[0]}</span>
-                    <span className="text-black">{brandInfo.brandNameEn.slice(1)}</span>
-                  </h2>
-                  <p className="text-base text-black mb-14">{brandInfo.brandName}</p>
-                  <div className="text-sm text-black leading-relaxed mb-8">
-                    {brandInfo.description.map((line, idx) => (
-                      <p key={idx}>{line}</p>
-                    ))}
-                  </div>
-                  <div className="border-t border-[#828282] w-[20px] mx-auto border-[0.6px] mb-10"></div>
-                </div>
-
-                {/* MADE BY 섹션 */}
-                <div className="text-center">
-                  <h3 className="text-base font-medium text-[#828282] mb-6">MADE BY</h3>
-                  <div className="grid grid-cols-3">
-                    {brandInfo.materials.map((material, idx) => (
-                      <div key={idx} className="flex flex-col items-center">
-                        <div className="w-full aspect-square mb-2 bg-transparent overflow-hidden">
-                          {material.image && (
-                            <img
-                              src={material.image}
-                              alt={material.name}
-                              className="w-full h-full object-cover rounded-lg"
-                            />
-                          )}
-                        </div>
-                        <p className="text-sm text-[#828282] text-center mb-[100px]">{material.label}</p>
+                {/* 추가 상품 이미지 (정보 탭에만 표시) */}
+                {additionalImages.length > 0 && (
+                  <div className="space-y-4 mb-6">
+                    {additionalImages.map((img: string, idx: number) => (
+                      <div key={idx} className="w-full bg-gray-100 rounded-lg overflow-hidden">
+                        <img 
+                          src={img} 
+                          alt={`${product.type} ${idx + 2}`}
+                          className="w-full h-auto object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                          }}
+                        />
                       </div>
                     ))}
                   </div>
-                </div>
+                )}
 
-                {/* 추가 상품 이미지 */}
-                <div className="space-y-4">
-                  {additionalImages.map((img, idx) => (
-                    <div key={idx} className="w-full bg-gray-100 rounded-lg overflow-hidden">
-                      <img 
-                        src={img} 
-                        alt={`${product.type} ${idx + 1}`}
-                        className="w-full h-auto object-cover"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).style.display = 'none';
-                        }}
-                      />
+                {/* 브랜드 정보 */}
+                {brandInfo && (
+                  <>
+                    <div className="text-center">
+                      <h2 className="text-[36px] font-extrabold mt-[140px] mb-2">
+                        <span className="text-main">{brandInfo.brandNameEn[0]}</span>
+                        <span className="text-black">{brandInfo.brandNameEn.slice(1)}</span>
+                      </h2>
+                      <p className="text-base text-black mb-14">{brandInfo.brandName}</p>
+                      <div className="text-sm text-black leading-relaxed mb-8">
+                        {brandInfo.description.map((line, idx) => (
+                          <p key={idx}>{line}</p>
+                        ))}
+                      </div>
+                      <div className="border-t border-[#828282] w-[20px] mx-auto border-[0.6px] mb-10"></div>
                     </div>
-                  ))}
-                </div>
+
+                    {/* MADE BY 섹션 */}
+                    <div className="text-center">
+                      <h3 className="text-base font-medium text-[#828282] mb-6">MADE BY</h3>
+                      <div className="grid grid-cols-3">
+                        {brandInfo.materials.map((material, idx) => (
+                          <div key={idx} className="flex flex-col items-center">
+                            <div className="w-full aspect-square mb-2 bg-transparent overflow-hidden">
+                              {material.image && (
+                                <img
+                                  src={getImageFullUrl(material.image)}
+                                  alt={material.name}
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                              )}
+                            </div>
+                            <p className="text-sm text-[#828282] text-center mb-[100px]">{material.label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             )}
 
